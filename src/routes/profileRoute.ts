@@ -1,13 +1,12 @@
 import express from 'express';
+import { profileController } from '../controllers/profileController';
 
 // Controllers
-import { authController } from '../controllers/authController';
 
 // Middlewares
 // import validations from '../../middlewares/validations.middleware';
 
 const router = express.Router();
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/create-profile', profileController.create);
 
 export default router;

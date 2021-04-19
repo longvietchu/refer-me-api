@@ -25,9 +25,11 @@ class AuthController {
                 role
             });
 
+            const payload = { email: newUser.email };
+
             // Generate token
             const tokenSign = jwt.sign(
-                { email: newUser.email },
+                payload,
                 process.env.SECRET_OR_KEY,
                 { expiresIn: 3600 }
             );
@@ -52,9 +54,10 @@ class AuthController {
             if (!user) return res.status(400).json({ msg: 'User not found' });
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
+                const payload = { email: user.email };
                 // Generate token
                 const tokenSign = jwt.sign(
-                    { email: user.email },
+                    payload,
                     process.env.SECRET_OR_KEY,
                     { expiresIn: 3600 }
                 );

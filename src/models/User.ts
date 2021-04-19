@@ -1,33 +1,32 @@
-import mongoose, { Schema } from "mongoose";
-import { timeStamp } from "node:console";
+import mongoose, { Schema } from 'mongoose';
 
 export enum Role {
-  USER = "USER",
-  ADMIN = "ADMIN",
+    USER = 'USER',
+    ADMIN = 'ADMIN'
 }
 
 const UserSchema: Schema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
+    {
+        name: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
+        },
+        password: {
+            type: String,
+            required: true
+        },
+        role: {
+            type: Role,
+            default: Role.USER
+        }
     },
-    email: {
-      type: String,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: Role,
-      default: Role.USER,
-    },
-  },
-  {
-    timestamps: true,
-  }
+    {
+        timestamps: true
+    }
 );
 
-export default mongoose.model("users", UserSchema);
+export default mongoose.model('users', UserSchema);
