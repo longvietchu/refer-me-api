@@ -28,6 +28,14 @@ app.use(passport.initialize());
 // Passport Config
 passportService(passport);
 
+// Declaration Merging
+import { IUser } from './models/User';
+declare global {
+    namespace Express {
+        interface User extends IUser {}
+    }
+}
+
 // Routes
 import userRoute from './routes/userRoute';
 import authRoute from './routes/authRoute';

@@ -1,6 +1,15 @@
-import mongoose, { Schema } from 'mongoose';
+import { Document, model, Model, ObjectId, Schema } from 'mongoose';
 
-const ProfileSchema: Schema = new mongoose.Schema({
+export interface IProfile extends Document {
+    dob: Date;
+    avatar: string;
+    backgroundImage: string;
+    about: string;
+    gender: number;
+    userId: ObjectId;
+}
+
+const ProfileSchema: Schema = new Schema({
     dob: {
         type: Date
     },
@@ -14,13 +23,13 @@ const ProfileSchema: Schema = new mongoose.Schema({
         type: String
     },
     gender: {
-        type: Number
+        type: Number,
+        default: 0
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'users'
     }
 })
 
-export default mongoose.model('profiles', ProfileSchema);
+export const Profile: Model<IProfile> =  model('profiles', ProfileSchema);
