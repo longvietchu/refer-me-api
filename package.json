@@ -4,6 +4,8 @@
   "description": "Refer Me Application",
   "main": "dist/index.js",
   "scripts": {
+    "tsc": "tsc",
+    "postinstall": "npm run tsc",
     "start": "tsc && node dist/app.js",
     "dev": "nodemon src/app.ts",
     "build": "tsc -p .",
