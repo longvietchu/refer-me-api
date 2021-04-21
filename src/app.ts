@@ -1,6 +1,6 @@
 'use strict';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 import passport from 'passport';
@@ -35,6 +35,10 @@ declare global {
         interface User extends IUser {}
     }
 }
+
+app.get('/', (req: Request, res: Response) => {
+    res.send('Hello I am Refer Me API. I am small and adorable so please do not DDOS me!!!');
+})
 
 // Routes
 import userRoute from './routes/userRoute';
