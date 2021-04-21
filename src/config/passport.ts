@@ -1,4 +1,3 @@
-// import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import dotenv from 'dotenv';
 import { PassportStatic } from 'passport';
 import {
@@ -6,7 +5,9 @@ import {
     Strategy as JwtStrategy,
     VerifiedCallback
 } from 'passport-jwt';
-import User from '../models/User';
+import mongoose from '../models/index';
+import {User} from '../models/User';
+// const User = mongoose.model('users');
 
 dotenv.config();
 let opts: any = {};
@@ -26,6 +27,4 @@ export default (passport: PassportStatic) => {
                 .catch((err) => console.log(err));
         })
     );
-
-    // passport.use(new JwtStrategy(opts, ()))
 };

@@ -4,12 +4,12 @@ import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 
 // Model
-import User from '../models/User';
+import {User} from '../models/User';
 
 class AuthController {
     public register = async (req: Request, res: Response) => {
-        const { name, email, password, role } = req.body;
         try {
+            const { name, email, password, role } = req.body;
             let user: any = await User.findOne({ email });
             if (user)
                 return res.status(400).json({ msg: 'User already exists' });
@@ -18,43 +18,28 @@ class AuthController {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            const newUser: any = await User.create({
+            const newUser = {
                 name,
                 email,
                 password: hashedPassword,
                 role
-            });
+            };
 
-            const payload = { email: newUser.email };
-
-            // Generate token
-            const tokenSign = jwt.sign(
-                payload,
-                process.env.SECRET_OR_KEY,
-                { expiresIn: 3600 }
-            );
-
-            res.status(200).json({
-                token: 'Bearer ' + tokenSign,
-                user: {
-                    name: newUser.name,
-                    email: newUser.email,
-                    role: newUser.role
-                }
-            });
+            await User.create(newUser);
+            return res.status(200).json(newUser);
         } catch (err) {
             console.log(err);
         }
     };
 
     public login = async (req: Request, res: Response) => {
-        const { email, password } = req.body;
         try {
+            const { email, password } = req.body;
             let user: any = await User.findOne({ email });
             if (!user) return res.status(400).json({ msg: 'User not found' });
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
-                const payload = { email: user.email };
+                const payload = { id: user.id, name: user.name, email: user.email };
                 // Generate token
                 const tokenSign = jwt.sign(
                     payload,
@@ -62,13 +47,12 @@ class AuthController {
                     { expiresIn: 3600 }
                 );
 
-                res.status(200).json({
+                return res.status(200).json({
                     token: 'Bearer ' + tokenSign,
                     success: true
                 });
-            } else {
-                res.status(400).json({ msg: 'Invalid email or password'});
-            }
+            } 
+            return res.status(400).json({ msg: 'Invalid email or password'});
         } catch (err) {
             console.log(err);
         }
