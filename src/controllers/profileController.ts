@@ -1,38 +1,37 @@
 import { Request, Response } from 'express';
-
+import errorHandler from '../utils/errorHandler';
 import { Profile } from '../models/Profile';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
+        const { dob, avatar, background_image, about, gender } = req.body;
         try {
-            const { dob, avatar, backgroundImage, about, gender } = req.body;
-
             let newProfile = {};
             if (gender) {
                 newProfile = {
                     dob,
                     avatar,
-                    backgroundImage,
+                    background_image,
                     about,
                     gender,
-                    userId: req.user.id
+                    user_id: req.user.id
                 };
             } else {
                 newProfile = {
                     dob,
                     avatar,
-                    backgroundImage,
+                    background_image,
                     about,
-                    userId: req.user.id
+                    user_id: req.user.id
                 };
             }
             const existProfile = await Profile.findOne({
-                userId: req.user.id
+                user_id: req.user.id
             });
             if (existProfile) {
                 // Update
                 const profileUpdate = await Profile.findOneAndUpdate(
-                    { userId: req.user.id },
+                    { user_id: req.user.id },
                     { $set: newProfile },
                     {
                         setDefaultsOnInsert: true,
@@ -47,8 +46,32 @@ class ProfileController {
             // Create
             const savedProfile = await new Profile(newProfile).save();
             return res.status(200).json(savedProfile);
-        } catch (error) {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
+            return errorHandler(res, e, 'Cannot create new profile.');
+        }
+    };
+
+    public getProfile = async (req: Request, res: Response) => {
+        const { user_id } = req.params;
+        try {
+            const profile = await Profile.findOne({ user_id });
+            if (profile) {
+                const {
+                    dob,
+                    avatar,
+                    background_image,
+                    about,
+                    gender
+                }: any = profile;
+                return res.status(200).json({
+                    profile: { dob, avatar, background_image, about, gender }
+                });
+            }
+            return res.status(400).json({ msg: 'User does not have profile' });
+        } catch (e) {
+            console.log(e);
+            return errorHandler(res, e, 'Cannot get profile.');
         }
     };
 }

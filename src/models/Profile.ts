@@ -1,35 +1,21 @@
-import { Document, model, Model, ObjectId, Schema } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 
-export interface IProfile extends Document {
-    dob: Date;
-    avatar: string;
-    backgroundImage: string;
-    about: string;
-    gender: number;
-    userId: ObjectId;
-}
+const ProfileSchema: Schema = new Schema(
+    {
+        dob: Date,
+        avatar: String,
+        background_image: String,
+        about: String,
+        gender: {
+            type: Number,
+            default: 0
+        },
+        user_id: {
+            type: Types.ObjectId,
+            ref: 'users'
+        }
+    },
+    { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
+);
 
-const ProfileSchema: Schema = new Schema({
-    dob: {
-        type: Date
-    },
-    avatar: {
-        type: String
-    },
-    backgroundImage: {
-        type: String
-    },
-    about: {
-        type: String
-    },
-    gender: {
-        type: Number,
-        default: 0
-    },
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'users'
-    }
-})
-
-export const Profile: Model<IProfile> =  model('profiles', ProfileSchema);
+export const Profile = model('profiles', ProfileSchema);

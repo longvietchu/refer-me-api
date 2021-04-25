@@ -4,19 +4,25 @@ import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 
 // Model
-import {User} from '../models/User';
+import {IUser, User} from '../models/User';
+import errorHandler from '../utils/errorHandler';
 
 class AuthController {
     public register = async (req: Request, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+        const { name, email, password, role } = req.body;
+
         try {
-            const { name, email, password, role } = req.body;
-            let user: any = await User.findOne({ email });
+            let user = await User.findOne({ email });
             if (user)
                 return res.status(400).json({ msg: 'User already exists' });
 
             // Create salt & hash
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
+            const salt: string = await bcrypt.genSalt(10);
+            const hashedPassword: string = await bcrypt.hash(password, salt);
 
             const newUser = {
                 name,
@@ -26,15 +32,21 @@ class AuthController {
             };
 
             await User.create(newUser);
-            return res.status(200).json(newUser);
-        } catch (err) {
-            console.log(err);
+            return res.status(200).json({user: {name, email, role}});
+        } catch (e) {
+            console.log(e);
+            return errorHandler(res, e, 'Cannot register new user.');
         }
     };
 
     public login = async (req: Request, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+        const { email, password } = req.body;
+
         try {
-            const { email, password } = req.body;
             let user: any = await User.findOne({ email });
             if (!user) return res.status(400).json({ msg: 'User not found' });
             const isMatch = await bcrypt.compare(password, user.password);
@@ -53,9 +65,11 @@ class AuthController {
                 });
             } 
             return res.status(400).json({ msg: 'Invalid email or password'});
-        } catch (err) {
-            console.log(err);
+        } catch (e) {
+            console.log(e);
+            return errorHandler(res, e, 'Cannot login user.');
         }
+
     };
 }
 

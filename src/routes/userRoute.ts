@@ -1,13 +1,12 @@
 import express from 'express';
-import { userController } from '../controllers/userController';
 import passport from 'passport';
-
-// Controllers
-
-// Middlewares
-// import validations from '../../middlewares/validations.middleware';
+import { userController } from '../controllers/userController';
 
 const router = express.Router();
-router.get('/current', passport.authenticate('jwt', { session: false}) ,userController.getAll);
+router.get(
+    '/current',
+    passport.authenticate('jwt', { session: false }),
+    userController.getCurrent
+);
 
 export default router;

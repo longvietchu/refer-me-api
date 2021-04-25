@@ -6,7 +6,13 @@ import path from 'path';
 import passport from 'passport';
 import passportService from './config/passport';
 
-dotenv.config();
+if (!process.env.ENV) {
+    try {
+        dotenv.config();
+    } catch (e) {
+        console.log('No loading env vars', e);
+    }
+}
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -36,18 +42,14 @@ declare global {
     }
 }
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello I am Refer Me API. I am small and adorable so please do not DDOS me!!!');
-})
-
 // Routes
-import userRoute from './routes/userRoute';
-import authRoute from './routes/authRoute';
-import profileRoute from './routes/profileRoute';
-
-app.use('/v1/user', userRoute);
-app.use('/v1/auth', authRoute);
-app.use('/v1/profile', profileRoute);
+import api from './routes/index';
+app.get('/', (req: Request, res: Response) => {
+    res.send(
+        'Hello I am Refer Me API. I am small and adorable so please do not DDOS me!!!'
+    );
+});
+app.use('/v1', api);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
