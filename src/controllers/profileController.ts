@@ -6,25 +6,14 @@ class ProfileController {
     public create = async (req: Request, res: Response) => {
         const { dob, avatar, background_image, about, gender } = req.body;
         try {
-            let newProfile = {};
-            if (gender) {
-                newProfile = {
-                    dob,
-                    avatar,
-                    background_image,
-                    about,
-                    gender,
-                    user_id: req.user.id
-                };
-            } else {
-                newProfile = {
-                    dob,
-                    avatar,
-                    background_image,
-                    about,
-                    user_id: req.user.id
-                };
-            }
+            const newProfile = {
+                dob,
+                avatar,
+                background_image,
+                about,
+                gender,
+                user_id: req.user.id
+            };
             const existProfile = await Profile.findOne({
                 user_id: req.user.id
             });
@@ -37,7 +26,8 @@ class ProfileController {
                         setDefaultsOnInsert: true,
                         new: true,
                         upsert: true,
-                        useFindAndModify: false
+                        useFindAndModify: false,
+                        omitUndefined: true
                     }
                 );
                 return res.status(200).json(profileUpdate);
@@ -47,7 +37,6 @@ class ProfileController {
             const savedProfile = await new Profile(newProfile).save();
             return res.status(200).json(savedProfile);
         } catch (e) {
-            console.log(e);
             return errorHandler(res, e, 'Cannot create new profile.');
         }
     };
@@ -70,7 +59,6 @@ class ProfileController {
             }
             return res.status(400).json({ msg: 'User does not have profile' });
         } catch (e) {
-            console.log(e);
             return errorHandler(res, e, 'Cannot get profile.');
         }
     };

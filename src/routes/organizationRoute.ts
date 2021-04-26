@@ -13,6 +13,7 @@ router.put(
     passport.authenticate('jwt', { session: false }),
     organizationController.update
 );
+router.get('/all', organizationController.getAll);
 router.get('/:organization_id', organizationController.getOrganization);
 
 export default router;
