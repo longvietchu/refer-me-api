@@ -1,19 +1,20 @@
 import { Request, Response } from 'express';
-import errorHandler from '../utils/errorHandler';
 import { Profile } from '../models/Profile';
+import handleError from '../utils/handleError';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
         const { dob, avatar, background_image, about, gender } = req.body;
+        const newProfile = {
+            dob,
+            avatar,
+            background_image,
+            about,
+            gender,
+            user_id: req.user.id
+        };
+
         try {
-            const newProfile = {
-                dob,
-                avatar,
-                background_image,
-                about,
-                gender,
-                user_id: req.user.id
-            };
             const existProfile = await Profile.findOne({
                 user_id: req.user.id
             });
@@ -37,11 +38,11 @@ class ProfileController {
             const savedProfile = await new Profile(newProfile).save();
             return res.status(200).json(savedProfile);
         } catch (e) {
-            return errorHandler(res, e, 'Cannot create new profile.');
+            return handleError(res, e, 'Cannot create new profile.');
         }
     };
 
-    public getProfile = async (req: Request, res: Response) => {
+    public getOne = async (req: Request, res: Response) => {
         const { user_id } = req.params;
         try {
             const profile = await Profile.findOne({ user_id });
@@ -59,7 +60,25 @@ class ProfileController {
             }
             return res.status(400).json({ msg: 'User does not have profile' });
         } catch (e) {
-            return errorHandler(res, e, 'Cannot get profile.');
+            return handleError(res, e, 'Cannot get profile.');
+        }
+    };
+
+    public delete = async (req: Request, res: Response) => {
+        try {
+            const profile = await Profile.findOne({ user_id: req.user.id });
+            if (profile) {
+                await Profile.deleteOne({ user_id: req.user.id });
+                return res.status(200).json({
+                    success: true
+                });
+            }
+            return res.status(401).json({
+                msg: 'Unauthorized to delete profile.',
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot delete profile,');
         }
     };
 }

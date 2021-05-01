@@ -1,10 +1,10 @@
-import { Response } from "express";
+import { Response } from 'express';
 
 export default (res: Response, e: any, message: string) => {
     let statusCode: number = e.code === 11000 ? 400 : 500;
     return res.status(statusCode).json({
-        status: false,
+        success: false,
         message,
         errors: [{ msg: e.message }]
-    })
-}
+    });
+};

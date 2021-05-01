@@ -11,7 +11,8 @@ const EducationSchema: Schema = new Schema(
         graduated_at: Date,
         user_id: {
             type: Types.ObjectId,
-            ref: 'users'
+            ref: 'users',
+            required: true
         },
         organization_id: {
             type: Types.ObjectId,

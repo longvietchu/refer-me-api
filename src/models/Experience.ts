@@ -17,7 +17,8 @@ const ExperienceSchema: Schema = new Schema(
         left_at: Date,
         user_id: {
             type: Types.ObjectId,
-            ref: 'users'
+            ref: 'users',
+            required: true
         },
         organization_id: {
             type: Types.ObjectId,
