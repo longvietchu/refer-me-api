@@ -4,11 +4,10 @@ import handleError from '../utils/handleError';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
-        const { dob, avatar, background_image, about, gender } = req.body;
+        const { dob, about, gender } = req.body;
         const newProfile = {
             dob,
-            avatar,
-            background_image,
+            avatar: req.body.image,
             about,
             gender,
             user_id: req.user.id
@@ -39,6 +38,34 @@ class ProfileController {
             return res.status(200).json(savedProfile);
         } catch (e) {
             return handleError(res, e, 'Cannot create new profile.');
+        }
+    };
+
+    public updateBackgroundImage = async (req: Request, res: Response) => {
+        const updateProfile = {
+            background_image: req.body.image
+        };
+
+        try {
+            const profile: any = await Profile.findOne({
+                user_id: req.user.id
+            });
+            if (profile) {
+                await Profile.updateOne(
+                    { user_id: req.user.id },
+                    { $set: updateProfile },
+                    { omitUndefined: true }
+                );
+                return res
+                    .status(200)
+                    .json({ data: updateProfile, success: true });
+            }
+            return res.status(404).json({
+                message: 'Profile not found.',
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot update profile.');
         }
     };
 

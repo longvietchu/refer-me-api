@@ -20,13 +20,14 @@ const port = process.env.PORT || 5000;
 mongoose
     .connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useCreateIndex: true
     })
     .then(() => console.log('Connect to MongoDB successful'))
     .catch((error) => console.log(error));
 
 // Middleware
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(passport.initialize());

@@ -14,8 +14,7 @@ export const loginValidation = [
 ];
 
 export const createEducation = [
-    check('title', 'Tên học vấn không được để trống').trim().not().isEmpty(),
-    check('user_id', 'Id người dùng không được để trống').trim().not().isEmpty()
+    check('title', 'Tên học vấn không được để trống').trim().not().isEmpty()
 ];
 
 export const createExperience = [
@@ -23,6 +22,5 @@ export const createExperience = [
         .trim()
         .not()
         .isEmpty(),
-    check('company', 'Tên công ty không được để trống').trim().not().isEmpty(),
-    check('user_id', 'Id người dùng không được để trống').trim().not().isEmpty()
+    check('company', 'Tên công ty không được để trống').trim().not().isEmpty()
 ];

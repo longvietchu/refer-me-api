@@ -6,7 +6,11 @@ import { createExperience } from '../utils/validations';
 const router = express.Router();
 router.get('/:user_id', experienceController.getAllByUserId);
 router.get('/:experience_id', experienceController.getOneById);
-router.post('', experienceController.create);
+router.post(
+    '',
+    passport.authenticate('jwt', { session: false }),
+    experienceController.create
+);
 router.put(
     '/:experience_id',
     [passport.authenticate('jwt', { session: false }), createExperience],

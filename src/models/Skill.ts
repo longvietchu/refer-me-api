@@ -6,7 +6,10 @@ const SkillSchema: Schema = new Schema(
             type: String,
             required: true
         },
-        votes: Number,
+        votes: {
+            type: Number,
+            default: 0
+        },
         user_id: {
             type: Types.ObjectId,
             ref: 'users'

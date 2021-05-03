@@ -87,7 +87,7 @@ class EducationController {
                     success: false
                 });
             }
-            return res.status(200).json({
+            return res.status(404).json({
                 message: 'Education not found.',
                 success: false
             });

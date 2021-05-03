@@ -17,9 +17,12 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/express": "^4.17.11",
     "@types/jsonwebtoken": "^8.5.1",
+    "@types/multer": "^1.4.5",
     "@types/node": "^14.14.39",
     "@types/passport": "^1.0.6",
     "@types/passport-jwt": "^3.0.5",
+    "@types/sharp": "^0.28.0",
+    "@types/uuid": "^8.3.0",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
@@ -31,7 +34,10 @@
     "express-validator": "^6.10.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
+    "multer": "^1.4.2",
     "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0"
+    "passport-jwt": "^4.0.0",
+    "sharp": "^0.28.1",
+    "uuid": "^8.3.2"
   }
 }

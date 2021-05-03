@@ -78,7 +78,7 @@ class OrganizationController {
                     success: false
                 });
             }
-            return res.status(200).json({
+            return res.status(404).json({
                 message: 'Organization not found.',
                 success: false
             });
@@ -152,6 +152,37 @@ class OrganizationController {
             });
         } catch (e) {
             return handleError(res, e, 'Cannot delete organization.');
+        }
+    };
+
+    public search = async (req: Request, res: Response) => {
+        const keyword = req.query.keyword as string;
+        try {
+            // const organizations = await Organization.find({
+            //     $text: { $search: keyword.toString() }
+            // }).exec();
+            const organizations = await Organization.find({
+                name: { $regex: new RegExp(keyword), $options: 'ix' }
+            })
+                .limit(10)
+                .exec();
+            if (organizations) {
+                return res
+                    .status(200)
+                    .json({ data: organizations, success: true });
+            }
+            return res.status(400).json({
+                message: 'Organization not found.',
+                success: false
+            });
+
+            // const indexes = await Organization.listIndexes();
+            // console.log(indexes);
+
+            // const drop = await Organization.collection.dropIndexes();
+            // return res.json({ drop });
+        } catch (e) {
+            return handleError(res, e, 'Cannot search organizations.');
         }
     };
 }

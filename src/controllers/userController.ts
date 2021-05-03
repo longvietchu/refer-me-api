@@ -63,6 +63,26 @@ class UserController {
             return handleError(res, e, 'Cannot delete user.');
         }
     };
+
+    public search = async (req: Request, res: Response) => {
+        const keyword = req.query.keyword as string;
+        try {
+            const users = await User.find({
+                name: { $regex: new RegExp(keyword), $options: 'ix' }
+            })
+                .limit(10)
+                .exec();
+            if (users) {
+                return res.status(200).json({ data: users, success: true });
+            }
+            return res.status(404).json({
+                message: 'User not found.',
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot search users.');
+        }
+    };
 }
 
 export const userController = new UserController();

@@ -99,7 +99,7 @@ class ExperienceController {
                     success: false
                 });
             }
-            return res.status(200).json({
+            return res.status(404).json({
                 message: 'Experience not found.',
                 success: false
             });

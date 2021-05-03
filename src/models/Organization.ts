@@ -18,7 +18,22 @@ const OrganizationSchema: Schema = new Schema(
             ref: 'users'
         }
     },
-    { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
+    {
+        timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
+    }
+);
+// OrganizationSchema.index({ name: 'text' });
+OrganizationSchema.index(
+    {
+        name: 'text',
+        description: 'text'
+    },
+    {
+        weights: {
+            name: 5,
+            description: 1
+        }
+    }
 );
 
 export const Organization = model('organizations', OrganizationSchema);

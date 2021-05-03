@@ -50,3 +50,6 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Upload files
+**/public/uploads/**

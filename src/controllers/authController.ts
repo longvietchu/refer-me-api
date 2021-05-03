@@ -51,7 +51,7 @@ class AuthController {
         try {
             let user: any = await User.findOne({ email });
             if (!user)
-                return res.status(400).json({ message: 'User not found' });
+                return res.status(404).json({ message: 'User not found' });
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
                 const payload = {
@@ -65,7 +65,7 @@ class AuthController {
                 });
 
                 return res.status(200).json({
-                    token: 'Bearer ' + tokenSign,
+                    token: tokenSign,
                     success: true
                 });
             }

@@ -8,6 +8,7 @@ router.get(
     passport.authenticate('jwt', { session: false }),
     userController.getCurrent
 );
+router.get('/search', userController.search);
 router.put(
     '/change-info',
     passport.authenticate('jwt', { session: false }),
