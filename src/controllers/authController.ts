@@ -65,7 +65,7 @@ class AuthController {
                 });
 
                 return res.status(200).json({
-                    token: tokenSign,
+                    token: 'Bearer ' + tokenSign,
                     success: true
                 });
             }

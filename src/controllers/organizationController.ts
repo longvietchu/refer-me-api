@@ -110,18 +110,29 @@ class OrganizationController {
     };
 
     public getAll = async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
         try {
-            const organizations = await Organization.find(
-                {},
-                'name avatar background_image description website industry company_size founded'
-            ).exec();
+            const organizations = await Organization.find({})
+                .sort({
+                    created_at: 'asc'
+                })
+                .select(
+                    'name avatar background_image description website industry company_size founded created_at updated_at'
+                )
+                .limit(limit)
+                .skip(limit * page)
+                .exec();
             const total_record = await Organization.countDocuments();
             if (organizations) {
                 res.status(200).json({
                     data: organizations,
                     success: true,
                     meta: {
-                        total_record
+                        page_index: page,
+                        page_size: limit,
+                        total_record,
+                        total_page: Math.ceil(total_record / limit)
                     }
                 });
             }

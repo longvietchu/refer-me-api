@@ -10,7 +10,7 @@ import { User } from '../models/User';
 
 dotenv.config();
 let opts: any = {};
-opts.jwtFromRequest = ExtractJwt.fromHeader('x-referme-token');
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.SECRET_OR_KEY;
 
 export default (passport: PassportStatic) => {

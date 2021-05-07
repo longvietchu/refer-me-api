@@ -12,6 +12,10 @@ const JobSchema: Schema = new Schema(
         employment_type: String,
         industry: String,
         job_functions: String,
+        user_id: {
+            type: Types.ObjectId,
+            ref: 'users'
+        },
         organization_id: {
             type: Types.ObjectId,
             ref: 'organizations'
