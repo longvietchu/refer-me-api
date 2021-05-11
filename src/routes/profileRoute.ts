@@ -9,7 +9,7 @@ router.post(
     '',
     [
         passport.authenticate('jwt', { session: false }),
-        uploadFile.upload.single('avatar'),
+        uploadFile.upload.single('background_image'),
         uploadFile.resizeSingle
     ],
     profileController.create

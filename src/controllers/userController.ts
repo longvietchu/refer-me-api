@@ -9,7 +9,8 @@ class UserController {
                 data: {
                     id: req.user.id,
                     name: req.user.name,
-                    email: req.user.email
+                    email: req.user.email,
+                    avatar: req.user.avatar
                 }
             });
         } catch (e) {
@@ -21,7 +22,8 @@ class UserController {
     public changeInfo = async (req: Request, res: Response) => {
         const updateUser = {
             name: req.body.name,
-            password: req.body.password
+            password: req.body.password,
+            avatar: req.body.image
         };
 
         try {

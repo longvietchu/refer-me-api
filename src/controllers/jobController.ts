@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
+import { Applicant } from '../models/Applicant';
 import { Job } from '../models/Job';
+import { User } from '../models/User';
 import handleError from '../utils/handleError';
 
 class JobController {
@@ -56,7 +58,7 @@ class JobController {
             organization_id
         };
         try {
-            const job: any = await Job.findById(job_id);
+            const job: any = await Job.findById(job_id).exec();
             if (job) {
                 if (job.user_id.equals(req.user.id)) {
                     await Job.updateOne(
@@ -109,7 +111,7 @@ class JobController {
         const limit = parseInt(req.query.limit as string) || 10;
         try {
             const jobs = await Job.find({})
-                .sort({ created_at: 'asc' })
+                .sort({ created_at: 'desc' })
                 .select(
                     'title location description seniority_level employment_type industry job_functions organization_id user_id created_at updated_at'
                 )
@@ -137,7 +139,7 @@ class JobController {
     public delete = async (req: Request, res: Response) => {
         const { job_id } = req.params;
         try {
-            const job: any = await Job.findById(job_id);
+            const job: any = await Job.findById(job_id).exec();
             if (job) {
                 if (job.user_id.equals(req.user.id)) {
                     await Job.deleteOne({ _id: job_id });
@@ -169,7 +171,7 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Job.countDocuments();
+            const total_record = jobs.length;
             if (jobs) {
                 return res.status(200).json({
                     data: jobs,
@@ -188,6 +190,96 @@ class JobController {
             });
         } catch (e) {
             return handleError(res, e, 'Cannot search jobs.');
+        }
+    };
+    public getAllApplicants = async (req: Request, res: Response) => {
+        const job_id = req.query.job_id;
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        try {
+            const job: any = await Job.findById(job_id).exec();
+            if (job.user_id.equals(req.user.id)) {
+                const applicants = await Applicant.aggregate([
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user_id',
+                            foreignField: '_id',
+                            as: 'user'
+                        }
+                    },
+                    {
+                        $unwind: '$user'
+                    },
+                    {
+                        $project: {
+                            'user._id': 1,
+                            'user.name': 1,
+                            'user.email': 1,
+                            'user.avatar': 1
+                        }
+                    }
+                ])
+                    .sort({ created_at: 'asc' })
+                    .limit(limit)
+                    .skip(limit * page)
+                    .exec();
+                const total_record = applicants.length;
+                return res.status(200).json({
+                    data: applicants,
+                    success: true,
+                    meta: {
+                        page_index: page,
+                        page_size: limit,
+                        total_record,
+                        total_page: Math.ceil(total_record / limit)
+                    }
+                });
+            }
+            return res.status(401).json({
+                message: 'Unauthorized to get applicants',
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get applicants.');
+        }
+    };
+    public applyJob = async (req: Request, res: Response) => {
+        const { job_id } = req.params;
+        const { greeting } = req.body;
+        const newApplicant = {
+            greeting,
+            user_id: req.user.id,
+            job_id
+        };
+        try {
+            await Applicant.create(newApplicant);
+            return res.status(200).json({ data: newApplicant, success: true });
+        } catch (e) {
+            return handleError(res, e, 'Cannot create applicants.');
+        }
+    };
+    public unApply = async (req: Request, res: Response) => {
+        const { job_id } = req.params;
+        try {
+            const applicant: any = await Applicant.findOne({ job_id }).exec();
+            if (applicant) {
+                if (applicant.user_id.equals(req.user.id)) {
+                    await Applicant.findByIdAndDelete(applicant.id);
+                    return res.status(200).json({ success: true });
+                }
+                return res.status(401).json({
+                    message: 'Unauthorized to delete applicant.',
+                    success: false
+                });
+            }
+            return res.status(400).json({
+                message: 'Applicant not found.',
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot delete applicant.');
         }
     };
 }

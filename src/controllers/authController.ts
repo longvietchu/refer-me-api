@@ -11,7 +11,7 @@ class AuthController {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, image } = req.body;
 
         try {
             let user = await User.findOne({ email });
@@ -28,13 +28,15 @@ class AuthController {
                 name,
                 email,
                 password: hashedPassword,
+                avatar: image,
                 role
             };
 
             await User.create(newUser);
-            return res
-                .status(200)
-                .json({ user: { name, email, role }, success: true });
+            return res.status(200).json({
+                user: { name, email, avatar: newUser.avatar, role },
+                success: true
+            });
         } catch (e) {
             console.log(e);
             return handleError(res, e, 'Cannot register new user.');
@@ -61,7 +63,7 @@ class AuthController {
                 };
                 // Generate token
                 const tokenSign = jwt.sign(payload, process.env.SECRET_OR_KEY, {
-                    expiresIn: 3600
+                    expiresIn: parseInt(process.env.EXPIRE_TIME)
                 });
 
                 return res.status(200).json({

@@ -3,7 +3,7 @@ import passport from 'passport';
 import { skillController } from '../controllers/skillController';
 
 const router = express.Router();
-router.get('/:user_id', skillController.getAllByUserId);
+router.get('/user/:user_id', skillController.getAllByUserId);
 router.post(
     '',
     passport.authenticate('jwt', { session: false }),

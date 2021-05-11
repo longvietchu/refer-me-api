@@ -4,7 +4,7 @@ import { experienceController } from '../controllers/experienceController';
 import { createExperience } from '../utils/validations';
 
 const router = express.Router();
-router.get('/:user_id', experienceController.getAllByUserId);
+router.get('/user/:user_id', experienceController.getAllByUserId);
 router.get('/:experience_id', experienceController.getOneById);
 router.post(
     '',

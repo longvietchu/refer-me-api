@@ -8,6 +8,7 @@ import experienceRoute from './experienceRoute';
 import fileRoute from './fileRoute';
 import skillRoute from './skillRoute';
 import jobRoute from './jobRoute';
+import connectionRoute from './connectionRoute';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/experience', experienceRoute);
 router.use('/file', fileRoute);
 router.use('/skill', skillRoute);
 router.use('/job', jobRoute);
+router.use('/connection', connectionRoute);
 
 export default router;

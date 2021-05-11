@@ -2,12 +2,13 @@ import { model, Schema, Types } from 'mongoose';
 
 const ApplicantSchema: Schema = new Schema(
     {
+        greeting: String,
         user_id: {
-            type: Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'users'
         },
         job_id: {
-            type: Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'jobs'
         }
     },

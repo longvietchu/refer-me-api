@@ -3,6 +3,11 @@ import { model, Schema, Types } from 'mongoose';
 const ConnectionSchema: Schema = new Schema(
     {
         _id: String, // "sender_id.receiver_id"
+        is_connected: {
+            type: Boolean,
+            default: false
+        },
+        greeting: String,
         sender_id: {
             type: Types.ObjectId,
             ref: 'users'

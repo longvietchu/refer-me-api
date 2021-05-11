@@ -3,7 +3,6 @@ import { model, Schema, Types } from 'mongoose';
 const ProfileSchema: Schema = new Schema(
     {
         dob: Date,
-        avatar: String,
         background_image: String,
         about: String,
         gender: {

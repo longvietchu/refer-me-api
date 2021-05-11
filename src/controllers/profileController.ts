@@ -4,12 +4,12 @@ import handleError from '../utils/handleError';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
-        const { dob, about, gender } = req.body;
+        const { dob, about, gender, image } = req.body;
         const newProfile = {
             dob,
-            avatar: req.body.image,
             about,
             gender,
+            background_image: image,
             user_id: req.user.id
         };
 
@@ -32,10 +32,8 @@ class ProfileController {
                 );
                 return res.status(200).json(profileUpdate);
             }
-
-            // Create
             const savedProfile = await new Profile(newProfile).save();
-            return res.status(200).json(savedProfile);
+            return res.status(200).json({ data: savedProfile, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create new profile.');
         }
@@ -72,17 +70,13 @@ class ProfileController {
     public getOne = async (req: Request, res: Response) => {
         const { user_id } = req.params;
         try {
-            const profile = await Profile.findOne({ user_id });
+            const profile = await Profile.findOne({ user_id })
+                .select('dob background_image about gender')
+                .exec();
             if (profile) {
-                const {
-                    dob,
-                    avatar,
-                    background_image,
-                    about,
-                    gender
-                }: any = profile;
                 return res.status(200).json({
-                    profile: { dob, avatar, background_image, about, gender }
+                    data: profile,
+                    success: true
                 });
             }
             return res.status(400).json({ msg: 'User does not have profile' });

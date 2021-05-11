@@ -4,7 +4,7 @@ import { educationController } from '../controllers/educationController';
 import { createEducation } from '../utils/validations';
 
 const router = express.Router();
-router.get('/:user_id', educationController.getAllByUserId);
+router.get('/user/:user_id', educationController.getAllByUserId);
 router.get('/:education_id', educationController.getOneById);
 router.post(
     '',
