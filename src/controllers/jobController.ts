@@ -167,7 +167,7 @@ class JobController {
             const jobs = await Job.find({
                 title: { $regex: new RegExp(keyword), $options: 'ix' }
             })
-                .sort({ created_at: 'asc' })
+                .sort({ created_at: 'desc' })
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
@@ -221,7 +221,7 @@ class JobController {
                         }
                     }
                 ])
-                    .sort({ created_at: 'asc' })
+                    .sort({ created_at: 'desc' })
                     .limit(limit)
                     .skip(limit * page)
                     .exec();

@@ -115,7 +115,7 @@ class OrganizationController {
         try {
             const organizations = await Organization.find({})
                 .sort({
-                    created_at: 'asc'
+                    created_at: 'desc'
                 })
                 .select(
                     'name avatar background_image description website industry company_size founded created_at updated_at'

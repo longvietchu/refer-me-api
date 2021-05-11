@@ -79,7 +79,7 @@ class ConnectionController {
                 is_connected: true
             })
                 .sort({
-                    created_at: 'asc'
+                    created_at: 'desc'
                 })
                 .limit(limit)
                 .skip(limit * page)
@@ -144,7 +144,7 @@ class ConnectionController {
                     }
                 }
             ])
-                .sort({ created_at: 'asc' })
+                .sort({ created_at: 'desc' })
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
