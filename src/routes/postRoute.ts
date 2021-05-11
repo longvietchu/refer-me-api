@@ -1,34 +1,29 @@
 import express from 'express';
 import passport from 'passport';
-import { connectionController } from '../controllers/connectionController';
+import { postController } from '../controllers/postController';
 
 const router = express.Router();
 
 router.get(
-    '/people',
+    '/feed',
     passport.authenticate('jwt', { session: false }),
-    connectionController.getAll
+    postController.getAll
 );
-router.get('/detail/:connection_id', connectionController.getOne);
-router.get(
-    '/invitation',
-    passport.authenticate('jwt', { session: false }),
-    connectionController.getInvitation
-);
+router.get('/detail/:post_id', postController.getOne);
 router.post(
     '',
     passport.authenticate('jwt', { session: false }),
-    connectionController.create
+    postController.create
 );
 router.put(
-    '/:connection_id',
+    '/:post_id',
     passport.authenticate('jwt', { session: false }),
-    connectionController.update
+    postController.update
 );
 router.delete(
-    '/:connection_id',
+    '/:post_id',
     passport.authenticate('jwt', { session: false }),
-    connectionController.delete
+    postController.delete
 );
 
 export default router;
