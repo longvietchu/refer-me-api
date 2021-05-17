@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Connection } from '../models/Connection';
 import { Post } from '../models/Post';
+import { Reaction } from '../models/Reaction';
 import handleError from '../utils/handleError';
 import uploadFile from '../utils/uploadFile';
 
@@ -130,6 +131,32 @@ class PostController {
             });
         } catch (e) {
             return handleError(res, e, 'Cannot delete post.');
+        }
+    };
+
+    public createReaction = async (req: Request, res: Response) => {
+        const { post_id } = req.query;
+        try {
+            const reaction = await Reaction.findOne({
+                post_id,
+                user_id: req.user.id
+            });
+            if (reaction) {
+                await Reaction.findByIdAndDelete(reaction.id);
+                return res.status(200).json({
+                    data: reaction,
+                    messsage: 'Reaction deleted.',
+                    success: true
+                });
+            }
+            const newReaction = {
+                post_id,
+                user_id: req.user.id
+            };
+            await Reaction.create(newReaction);
+            return res.status(200).json({ data: newReaction, success: true });
+        } catch (e) {
+            return handleError(res, e, 'Cannot create reaction.');
         }
     };
 }

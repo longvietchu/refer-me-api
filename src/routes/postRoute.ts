@@ -31,4 +31,11 @@ router.delete(
     postController.delete
 );
 
+// Reaction
+router.post(
+    '/reaction/like',
+    passport.authenticate('jwt', { session: false }),
+    postController.createReaction
+);
+
 export default router;
