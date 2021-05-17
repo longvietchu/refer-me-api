@@ -30,7 +30,6 @@ const uploadImages = (req: Request, res: Response, next: NextFunction) => {
         } else if (err) {
             return res.send(err);
         }
-
         next();
     });
 };
@@ -83,17 +82,9 @@ const resizeImages = async (
 };
 
 const getResult = async (req: Request, res: Response) => {
-    if (req.body.images.length <= 0) {
-        return res.status(400).json({
-            message: 'You must select at least 1 image.',
-            success: false
-        });
-    }
-
     const imagesUrl = req.body.images.map((image: any) => {
         return `${process.env.IMG_HOST}/${image}`;
     });
-
     // return res.status(200).json({ imagesUrl, success: true });
     return imagesUrl;
 };
