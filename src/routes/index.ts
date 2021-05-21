@@ -9,6 +9,7 @@ import fileRoute from './fileRoute';
 import skillRoute from './skillRoute';
 import jobRoute from './jobRoute';
 import connectionRoute from './connectionRoute';
+import roomRoute from './roomRoute';
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use('/file', fileRoute);
 router.use('/skill', skillRoute);
 router.use('/job', jobRoute);
 router.use('/connection', connectionRoute);
+router.use('/room', roomRoute);
 
 export default router;

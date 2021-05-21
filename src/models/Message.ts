@@ -1,11 +1,21 @@
 import { model, Schema, Types } from 'mongoose';
 
+export enum MessageType {
+    TEXT = 'TEXT',
+    IMAGE = 'IMAGE',
+    EMOJI = 'EMOJI'
+}
+
 const MessageSchema: Schema = new Schema(
     {
-        room_id: {
+        _id: {
             type: String,
             required: true
-        }, // [not null, note: "creator_id.receiver_id"]
+        },
+        room_id: {
+            type: String, // [not null, note: "creator_id.receiver_id"]
+            required: true
+        },
         from: {
             type: Types.ObjectId,
             ref: 'users'
@@ -20,11 +30,17 @@ const MessageSchema: Schema = new Schema(
         },
         is_seen: {
             type: Boolean,
-            required: true
+            required: true,
+            default: false
         },
-        type: String // Enum: TEXT | IMAGE | EMOJI
+        type: {
+            type: String, // Enum: TEXT | IMAGE | EMOJI
+            default: MessageType.TEXT
+        }
     },
     { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
 
-export const Message = model('messages', MessageSchema);
+const Message = model('messages', MessageSchema);
+
+export { MessageSchema, Message };
