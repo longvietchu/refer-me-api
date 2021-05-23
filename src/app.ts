@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
+import http from 'http';
 import passport from 'passport';
 import passportService from './config/passport';
+import cors from 'cors';
 
 if (!process.env.ENV) {
     try {
@@ -15,6 +17,7 @@ if (!process.env.ENV) {
 }
 const app = express();
 const port = process.env.PORT || 5000;
+export const server = http.createServer(app);
 
 // Database connection
 mongoose
@@ -31,6 +34,7 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(passport.initialize());
+app.use(cors());
 
 // Passport Config
 passportService(passport);
@@ -43,6 +47,9 @@ declare global {
     }
 }
 
+// sockets
+require('./sockets/index');
+
 // Routes
 import api from './routes/index';
 app.get('/', (req: Request, res: Response) => {
@@ -52,6 +59,6 @@ app.get('/', (req: Request, res: Response) => {
 });
 app.use('/v1', api);
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
