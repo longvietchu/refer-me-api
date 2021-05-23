@@ -5,8 +5,7 @@ import {
     Strategy as JwtStrategy,
     VerifiedCallback
 } from 'passport-jwt';
-import mongoose from '../models/index';
-import {User} from '../models/User';
+import { User } from '../models/User';
 // const User = mongoose.model('users');
 
 dotenv.config();

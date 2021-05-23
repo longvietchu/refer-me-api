@@ -1,13 +1,28 @@
 import express from 'express';
-import { userController } from '../controllers/userController';
 import passport from 'passport';
-
-// Controllers
-
-// Middlewares
-// import validations from '../../middlewares/validations.middleware';
+import { userController } from '../controllers/userController';
+import uploadFile from '../utils/uploadFile';
 
 const router = express.Router();
-router.get('/current', passport.authenticate('jwt', { session: false}) ,userController.getAll);
+router.get(
+    '/current',
+    passport.authenticate('jwt', { session: false }),
+    userController.getCurrent
+);
+router.get('/search', userController.search);
+router.put(
+    '/change-info',
+    [
+        passport.authenticate('jwt', { session: false }),
+        uploadFile.upload.single('avatar'),
+        uploadFile.resizeSingle
+    ],
+    userController.changeInfo
+);
+router.delete(
+    '',
+    passport.authenticate('jwt', { session: false }),
+    userController.delete
+);
 
 export default router;

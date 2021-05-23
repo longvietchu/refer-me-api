@@ -1,4 +1,4 @@
-import { Document, model, Model, Schema } from 'mongoose';
+import { Document, model, Schema } from 'mongoose';
 
 export enum Role {
     USER = 'USER',
@@ -6,10 +6,12 @@ export enum Role {
 }
 
 export interface IUser extends Document {
+    id: string;
     name: string;
     email: string;
     password: string;
-    role: Role
+    avatar: string;
+    role: Role;
 }
 
 const UserSchema: Schema = new Schema(
@@ -26,14 +28,13 @@ const UserSchema: Schema = new Schema(
             type: String,
             required: true
         },
+        avatar: String,
         role: {
             type: Role,
             default: Role.USER
         }
     },
-    {
-        timestamps: true
-    }
+    { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
 
-export const User: Model<IUser> = model('users', UserSchema);
+export const User = model('users', UserSchema);

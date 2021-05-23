@@ -1,11 +1,12 @@
 import { model, Schema, Types } from 'mongoose';
 
-const ProfileSchema: Schema = new Schema(
+const SkillSchema: Schema = new Schema(
     {
-        dob: Date,
-        background_image: String,
-        about: String,
-        gender: {
+        name: {
+            type: String,
+            required: true
+        },
+        votes: {
             type: Number,
             default: 0
         },
@@ -17,4 +18,4 @@ const ProfileSchema: Schema = new Schema(
     { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
 
-export const Profile = model('profiles', ProfileSchema);
+export const Skill = model('skills', SkillSchema);
