@@ -2,17 +2,12 @@ import { model, Schema, Types } from 'mongoose';
 
 const ExperienceSchema: Schema = new Schema(
     {
-        job_title: {
-            type: String,
-            required: true
-        },
+        job_title: String,
         job_description: String,
-        company: {
-            type: String,
-            required: true
-        },
+        company: String,
         location: String,
         employment_type: String,
+        headline: String,
         joined_at: Date,
         left_at: Date,
         user_id: {

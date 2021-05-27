@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
 import handleError from '../utils/handleError';
+import bcrypt from 'bcryptjs';
 
 class UserController {
     public getCurrent = async (req: Request, res: Response) => {
@@ -22,7 +23,6 @@ class UserController {
     public changeInfo = async (req: Request, res: Response) => {
         const updateUser = {
             name: req.body.name,
-            password: req.body.password,
             avatar: req.body.image
         };
 
@@ -45,6 +45,46 @@ class UserController {
             });
         } catch (e) {
             return handleError(res, e, 'Cannot change info of user.');
+        }
+    };
+
+    public changePassword = async (req: Request, res: Response) => {
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+
+        try {
+            let user: any = await User.findById(req.user.id);
+            if (!user)
+                return res.status(404).json({ message: 'User not found' });
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            if (isMatch) {
+                if (newPassword === confirmPassword) {
+                    const salt: string = await bcrypt.genSalt(10);
+                    const hashedPassword: string = await bcrypt.hash(
+                        newPassword,
+                        salt
+                    );
+                    await User.updateOne(
+                        { _id: req.user.id },
+                        { $set: { password: hashedPassword } },
+                        { omitUndefined: true }
+                    );
+                    return res.status(200).json({
+                        message: 'Change password successful!',
+                        success: true
+                    });
+                }
+                return res.status(200).json({
+                    message: 'New password and confirm password do not match!',
+                    success: false
+                });
+            }
+            return res.status(200).json({
+                message: 'Old password is not correct!',
+                success: false
+            });
+        } catch (e) {
+            console.log(e);
+            return handleError(res, e, 'Cannot change password.');
         }
     };
 

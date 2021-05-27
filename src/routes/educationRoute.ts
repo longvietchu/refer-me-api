@@ -4,8 +4,8 @@ import { educationController } from '../controllers/educationController';
 import { createEducation } from '../utils/validations';
 
 const router = express.Router();
-router.get('/user/:user_id', educationController.getAllByUserId);
-router.get('/:education_id', educationController.getOneById);
+router.get('', educationController.getOneById);
+router.get('/user', educationController.getAllByUserId);
 router.post(
     '',
     [passport.authenticate('jwt', { session: false }), createEducation],

@@ -19,6 +19,11 @@ router.put(
     ],
     userController.changeInfo
 );
+router.put(
+    '/change-password',
+    passport.authenticate('jwt', { session: false }),
+    userController.changePassword
+);
 router.delete(
     '',
     passport.authenticate('jwt', { session: false }),

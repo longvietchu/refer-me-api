@@ -4,8 +4,8 @@ import { experienceController } from '../controllers/experienceController';
 import { createExperience } from '../utils/validations';
 
 const router = express.Router();
-router.get('/user/:user_id', experienceController.getAllByUserId);
-router.get('/:experience_id', experienceController.getOneById);
+router.get('', experienceController.getOneById);
+router.get('/user', experienceController.getAllByUserId);
 router.post(
     '',
     passport.authenticate('jwt', { session: false }),
