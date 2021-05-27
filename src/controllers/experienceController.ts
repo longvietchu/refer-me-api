@@ -5,9 +5,11 @@ import handleError from '../utils/handleError';
 
 class ExperienceController {
     public getAllByUserId = async (req: Request, res: Response) => {
-        const { user_id } = req.params;
+        const user_id = req.query.user_id as string;
         try {
-            const experiences = await Experience.find({ user_id });
+            const experiences = await Experience.find({ user_id }).sort({
+                created_at: 'desc'
+            });
             return res.status(200).json({ data: experiences, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot get experiences by user id.');
@@ -15,7 +17,7 @@ class ExperienceController {
     };
 
     public getOneById = async (req: Request, res: Response) => {
-        const { experience_id } = req.params;
+        const experience_id = req.query.experience_id as string;
         try {
             const experience = await Experience.findById(experience_id);
             return res.status(200).json({ data: experience, success: true });
@@ -35,6 +37,7 @@ class ExperienceController {
             company,
             location,
             employment_type,
+            headline,
             joined_at,
             left_at,
             organization_id
@@ -45,6 +48,7 @@ class ExperienceController {
             company,
             location,
             employment_type,
+            headline,
             joined_at,
             left_at,
             user_id: req.user.id,
@@ -83,12 +87,19 @@ class ExperienceController {
 
         try {
             const experience: any = await Experience.findById(experience_id);
+            console.log(updateExperience);
             if (experience) {
                 if (experience.user_id.equals(req.user.id)) {
                     await Experience.updateOne(
                         { _id: experience_id },
                         { $set: updateExperience },
-                        { omitUndefined: true }
+                        {
+                            setDefaultsOnInsert: true,
+                            new: true,
+                            upsert: true,
+                            useFindAndModify: false,
+                            omitUndefined: true
+                        }
                     );
                     return res
                         .status(200)

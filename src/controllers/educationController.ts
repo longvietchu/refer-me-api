@@ -5,9 +5,11 @@ import handleError from '../utils/handleError';
 
 class EducationController {
     public getAllByUserId = async (req: Request, res: Response) => {
-        const { user_id } = req.params;
+        const { user_id } = req.query;
         try {
-            const educations = await Education.find({ user_id });
+            const educations = await Education.find({ user_id }).sort({
+                created_at: 'desc'
+            });
             return res.status(200).json({ data: educations, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot get educations by user id.');
@@ -15,7 +17,7 @@ class EducationController {
     };
 
     public getOneById = async (req: Request, res: Response) => {
-        const { education_id } = req.params;
+        const education_id = req.query.education_id as string;
         try {
             const education = await Education.findById(education_id);
             return res.status(200).json({ data: education, success: true });
@@ -29,13 +31,8 @@ class EducationController {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const {
-            title,
-            description,
-            joined_at,
-            graduated_at,
-            organization_id
-        } = req.body;
+        const { title, description, joined_at, graduated_at, organization_id } =
+            req.body;
         const newEducation = {
             title,
             description,
@@ -54,13 +51,8 @@ class EducationController {
 
     public update = async (req: Request, res: Response) => {
         const { education_id } = req.params;
-        const {
-            title,
-            description,
-            joined_at,
-            graduated_at,
-            organization_id
-        } = req.body;
+        const { title, description, joined_at, graduated_at, organization_id } =
+            req.body;
         const updateEducation = {
             title,
             description,
