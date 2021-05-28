@@ -68,6 +68,12 @@ class AuthController {
 
                 return res.status(200).json({
                     token: 'Bearer ' + tokenSign,
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        avatar: user.avatar
+                    },
                     success: true
                 });
             }
