@@ -71,9 +71,7 @@ class ProfileController {
     public getOne = async (req: Request, res: Response) => {
         const { user_id } = req.params;
         try {
-            const profile = await Profile.findOne({ user_id })
-                .select('dob background_image about gender')
-                .exec();
+            const profile = await Profile.findOne({ user_id }).exec();
             if (profile) {
                 return res.status(200).json({
                     data: profile,
