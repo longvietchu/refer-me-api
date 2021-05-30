@@ -2,7 +2,7 @@ import { model, Schema, Types } from 'mongoose';
 
 const ConnectionSchema: Schema = new Schema(
     {
-        _id: String, // "sender_id.receiver_id"
+        people: [{ type: Schema.Types.ObjectId, ref: 'users' }],
         is_connected: {
             type: Boolean,
             default: false

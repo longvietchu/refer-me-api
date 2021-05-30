@@ -7,7 +7,7 @@ class ConnectionController {
     public create = async (req: Request, res: Response) => {
         const { receiver_id, greeting } = req.body;
         const newConnection = {
-            _id: `${req.user.id}.${receiver_id}`,
+            people: [req.user.id, receiver_id],
             receiver_id,
             sender_id: req.user.id,
             greeting
@@ -74,16 +74,39 @@ class ConnectionController {
         const limit = parseInt(req.query.limit as string) || 10;
         const userId = req.user.id;
         try {
-            const connections = await Connection.find({
-                _id: { $regex: new RegExp(userId), $options: 'ix' },
-                is_connected: true
-            })
-                .sort({
-                    created_at: 'desc'
+            const connections = await Connection.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'people',
+                        foreignField: '_id',
+                        as: 'people_info'
+                    }
+                }
+            ])
+                .match({
+                    people: {
+                        $all: [
+                            {
+                                $elemMatch: {
+                                    $eq: mongoose.Types.ObjectId(userId)
+                                }
+                            }
+                        ]
+                    },
+                    is_connected: true
                 })
+                .project({
+                    'people_info.role': 0,
+                    'people_info.password': 0,
+                    'people_info.created_at': 0,
+                    'people_info.updated_at': 0
+                })
+                .sort({ created_at: 'desc' })
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
+
             const total_record = connections.length;
             if (connections) {
                 res.status(200).json({
@@ -137,10 +160,10 @@ class ConnectionController {
                 },
                 {
                     $project: {
-                        'user._id': 1,
-                        'user.name': 1,
-                        'user.email': 1,
-                        'user.avatar': 1
+                        'user.role': 0,
+                        'user.password': 0,
+                        'user.created_at': 0,
+                        'user.updated_at': 0
                     }
                 }
             ])

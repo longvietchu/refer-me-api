@@ -2,7 +2,7 @@ import { model, Schema, Types } from 'mongoose';
 
 const CommentSchema: Schema = new Schema(
     {
-        body: {
+        content: {
             type: String,
             required: true
         },
