@@ -1,30 +1,70 @@
 import { Request, Response } from 'express';
+import { Comment } from '../models/Comment';
 import { Connection } from '../models/Connection';
 import { Post } from '../models/Post';
 import { Reaction } from '../models/Reaction';
 import handleError from '../utils/handleError';
-import uploadFile from '../utils/uploadFile';
+import mongoose from 'mongoose';
 
 class PostController {
+    paginate = (array: any, page_size: number, page_number: number) => {
+        return array.slice(page_number * page_size, page_number * page_size);
+    };
     getAll = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         const userId = req.user.id;
         try {
-            const connections = await Connection.find({
-                _id: { $regex: new RegExp(userId), $options: 'ix' },
-                is_connected: true
-            });
+            const connections = await Connection.aggregate()
+                .match({
+                    people: {
+                        $all: [
+                            {
+                                $elemMatch: {
+                                    $eq: mongoose.Types.ObjectId(userId)
+                                }
+                            }
+                        ]
+                    },
+                    is_connected: true
+                })
+                .exec();
             let friendIds = connections.map((item: any) => {
-                let dotPattern = /\./;
-                let friendId = item._id.replace(userId, '');
-                friendId = friendId.replace(dotPattern, '');
-                return friendId;
+                let friendId = item.people.filter((id: any) => id !== userId);
+                return friendId[0];
             });
             // console.log(friendIds);
-            const posts = await Post.find()
-                .where('user_id')
-                .in(friendIds)
+
+            let posts = await Post.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: '$user_info'
+                },
+                {
+                    $lookup: {
+                        from: 'reactions',
+                        localField: '_id',
+                        foreignField: 'post_id',
+                        as: 'reactions'
+                    }
+                }
+            ])
+                .match({
+                    user_id: { $in: friendIds }
+                })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
                 .sort({
                     created_at: 'desc'
                 })
@@ -64,9 +104,15 @@ class PostController {
             return handleError(res, e, 'Cannot get post.');
         }
     };
+    getImagesUrl = (images: any) => {
+        const imagesUrl = images.map((image: any) => {
+            return `${process.env.IMG_HOST}/${image}`;
+        });
+        return imagesUrl;
+    };
     create = async (req: Request, res: Response) => {
         const { description } = req.body;
-        const images = uploadFile.getResult(req, res);
+        const images = this.getImagesUrl(req.body.images);
         const newPost = {
             description,
             post_image: images,
@@ -134,6 +180,41 @@ class PostController {
         }
     };
 
+    public getReactions = async (req: Request, res: Response) => {
+        const post_id = req.query.post_id as string;
+        try {
+            const reactions = await Reaction.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                }
+            ])
+                .match({
+                    post_id: mongoose.Types.ObjectId(post_id)
+                })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
+                .sort({
+                    created_at: 'desc'
+                })
+                .exec();
+            return res.status(200).json({
+                data: reactions,
+                success: true
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get reactions.');
+        }
+    };
+
     public createReaction = async (req: Request, res: Response) => {
         const { post_id } = req.query;
         try {
@@ -157,6 +238,62 @@ class PostController {
             return res.status(200).json({ data: newReaction, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create reaction.');
+        }
+    };
+
+    public getCommentsOfPost = async (req: Request, res: Response) => {
+        const post_id = req.query.post_id as string;
+        try {
+            const comments = await Comment.aggregate([
+                {
+                    $match: {
+                        post_id: mongoose.Types.ObjectId(post_id)
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: '$user_info'
+                },
+                {
+                    $project: {
+                        'user_info.role': 0,
+                        'user_info.password': 0,
+                        'user_info.created_at': 0,
+                        'user_info.updated_at': 0
+                    }
+                }
+            ])
+                .sort({ created_at: 'desc' })
+                .exec();
+            return res.status(200).json({
+                data: comments,
+                success: true
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get comment.');
+        }
+    };
+
+    public createComment = async (req: Request, res: Response) => {
+        const { post_id } = req.query;
+        const { content } = req.body;
+        try {
+            const newComment = {
+                content,
+                post_id,
+                user_id: req.user.id
+            };
+            await Comment.create(newComment);
+            return res.status(200).json({ data: newComment, success: true });
+        } catch (e) {
+            return handleError(res, e, 'Cannot create comment.');
         }
     };
 }

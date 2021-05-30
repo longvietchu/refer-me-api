@@ -214,10 +214,10 @@ class JobController {
                     },
                     {
                         $project: {
-                            'user._id': 1,
-                            'user.name': 1,
-                            'user.email': 1,
-                            'user.avatar': 1
+                            'user.role': 0,
+                            'user.password': 0,
+                            'user.created_at': 0,
+                            'user.updated_at': 0
                         }
                     }
                 ])
