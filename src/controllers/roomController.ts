@@ -24,7 +24,18 @@ class RoomController {
                 let user_info = await User.findById(partnerId)
                     .select('name avatar')
                     .exec();
+                let findCondition = {
+                    room_id: rooms[i]._id,
+                    created_at: { $lte: Date.now() }
+                };
                 rooms[i].user_info = user_info;
+                let message = await Message.find(findCondition)
+                    .sort({ created_at: -1 })
+                    .limit(2)
+                    .exec();
+                if (message.length > 0) {
+                    rooms[i].lastest_message = message[0];
+                }
             }
             return res.status(200).json({ data: rooms, success: true });
         } catch (e) {

@@ -1,105 +1,60 @@
 import { server } from '../app';
 import { Server, Socket } from 'socket.io';
+import { v4 as uuidv4 } from 'uuid';
+import { Message } from '../models/Message';
 
-// init socket server
-const socketOptions = {
-    // server
-    path: process.env.SOCKET_PATH,
-    origins: '*:*',
-    // engine
-    transports: ['websocket'],
-    cookie: false,
-    cookiePath: false
-};
 const io: Server = require('socket.io')(server);
-const botName = 'ChatCord Bot';
 
-let users: any[] = [];
-
-function formatMessage(username: string, text: string) {
-    return {
-        username,
-        text,
-        time: Date.now()
-    };
-}
-
-// Join user to chat
-function userJoin(id: string, username: string, room: string) {
-    const user = { id, username, room };
-
-    users.push(user);
-
-    return user;
-}
-
-// Get current user
-function getCurrentUser(id: string) {
-    return users.find((user) => user.id === id);
-}
-
-// User leaves chat
-function userLeave(id: string) {
-    const index = users.findIndex((user) => user.id === id);
-
-    if (index !== -1) {
-        return users.splice(index, 1)[0];
+io.use((socket: any, next) => {
+    // console.log('socket query: ', socket.handshake.query);
+    let { token, user_id } = socket.handshake.query;
+    if (token) {
+        // mark user id and join the own room
+        socket['user_id'] = user_id;
+        socket.join(user_id);
+        return next();
+    } else {
+        // console.log('Socket Authentication Error');
+        return next(new Error('Authentication Error'));
     }
-}
-
-// Get room users
-function getRoomUsers(room: string) {
-    return users.filter((user) => user.room === room);
-}
+});
 
 // Run when client connects
-io.on('connection', (socket) => {
-    socket.on('joinRoom', ({ username, room }) => {
-        const user = userJoin(socket.id, username, room);
-
-        socket.join(user.room);
-
-        // Welcome current user
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
-
-        // Broadcast when a user connects
-        socket.broadcast
-            .to(user.room)
-            .emit(
-                'message',
-                formatMessage(botName, `${user.username} has joined the chat`)
-            );
-
-        // Send users and room info
-        io.to(user.room).emit('roomUsers', {
-            room: user.room,
-            users: getRoomUsers(user.room)
-        });
+io.on('connection', (socket: Socket) => {
+    socket.on('new_message', async (msg: any) => {
+        const { room_id, from, to, content } = msg;
+        const clientMessage = {
+            _id: uuidv4(),
+            room_id,
+            from,
+            to,
+            content: content.trim(),
+            is_seen: false
+        };
+        const serverMessage = {
+            ...clientMessage,
+            created_at: new Date().toISOString()
+        };
+        io.to(to).emit('new_message', serverMessage);
+        io.to(from).emit('new_message', serverMessage);
+        await Message.create(clientMessage);
     });
 
-    // Listen for chatMessage
-    socket.on('new_message', (msg) => {
-        const user = getCurrentUser(socket.id);
-
-        io.to(user.room).emit('message', formatMessage(user.username, msg));
+    socket.on('seen_message', async (msg: any) => {
+        let { room_id, to, from, last_message_created_at } = msg;
+        let findCondition = {
+            room_id,
+            to,
+            created_at: { $lte: last_message_created_at },
+            is_seen: false
+        };
+        io.to(to).emit('seen_message', msg);
+        io.to(from).emit('seen_message', msg);
+        await Message.updateMany(findCondition, { is_seen: true });
     });
 
-    // Runs when client disconnects
-    socket.on('disconnect', () => {
-        const user = userLeave(socket.id);
-
-        if (user) {
-            io.to(user.room).emit(
-                'message',
-                formatMessage(botName, `${user.username} has left the chat`)
-            );
-
-            // Send users and room info
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            });
-        }
+    socket.on('error', (err) => {
+        console.log('error from socket: ', socket.id, ' error: ', err);
     });
 });
 export default io;
