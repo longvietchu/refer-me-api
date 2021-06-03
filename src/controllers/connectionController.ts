@@ -74,7 +74,7 @@ class ConnectionController {
         const limit = parseInt(req.query.limit as string) || 10;
         const userId = req.user.id;
         try {
-            const connections = await Connection.aggregate([
+            let connections = await Connection.aggregate([
                 {
                     $lookup: {
                         from: 'users',
@@ -106,7 +106,12 @@ class ConnectionController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-
+            connections.map((item: any) => {
+                item.people_info = item.people_info.filter(
+                    (info: any) =>
+                        !mongoose.Types.ObjectId(info._id).equals(userId)
+                );
+            });
             const total_record = connections.length;
             if (connections) {
                 res.status(200).json({
@@ -152,18 +157,21 @@ class ConnectionController {
                         from: 'users',
                         localField: 'sender_id',
                         foreignField: '_id',
-                        as: 'user'
+                        as: 'user_info'
                     }
                 },
                 {
-                    $unwind: '$user'
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
                 },
                 {
                     $project: {
-                        'user.role': 0,
-                        'user.password': 0,
-                        'user.created_at': 0,
-                        'user.updated_at': 0
+                        'user_info.role': 0,
+                        'user_info.password': 0,
+                        'user_info.created_at': 0,
+                        'user_info.updated_at': 0
                     }
                 }
             ])

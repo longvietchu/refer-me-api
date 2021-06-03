@@ -45,7 +45,10 @@ class PostController {
                     }
                 },
                 {
-                    $unwind: '$user_info'
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
                 },
                 {
                     $lookup: {
@@ -53,6 +56,12 @@ class PostController {
                         localField: '_id',
                         foreignField: 'post_id',
                         as: 'reactions'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$reactions',
+                        preserveNullAndEmptyArrays: true
                     }
                 }
             ])
@@ -191,6 +200,12 @@ class PostController {
                         foreignField: '_id',
                         as: 'user_info'
                     }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
                 }
             ])
                 .match({
@@ -259,7 +274,10 @@ class PostController {
                     }
                 },
                 {
-                    $unwind: '$user_info'
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
                 },
                 {
                     $project: {

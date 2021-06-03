@@ -2,14 +2,36 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { Experience } from '../models/Experience';
 import handleError from '../utils/handleError';
+import mongoose from 'mongoose';
 
 class ExperienceController {
     public getAllByUserId = async (req: Request, res: Response) => {
         const user_id = req.query.user_id as string;
         try {
-            const experiences = await Experience.find({ user_id }).sort({
-                created_at: 'desc'
-            });
+            const experiences = await Experience.aggregate([
+                {
+                    $lookup: {
+                        from: 'organizations',
+                        localField: 'organization_id',
+                        foreignField: '_id',
+                        as: 'organization_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$organization_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    user_id: mongoose.Types.ObjectId(user_id)
+                })
+                .project({
+                    'organization_info.user_id': 0
+                })
+                .sort({ created_at: 'desc' })
+                .exec();
             return res.status(200).json({ data: experiences, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot get experiences by user id.');

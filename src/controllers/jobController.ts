@@ -3,6 +3,7 @@ import { Applicant } from '../models/Applicant';
 import { Job } from '../models/Job';
 import { User } from '../models/User';
 import handleError from '../utils/handleError';
+import mongoose from 'mongoose';
 
 class JobController {
     public create = async (req: Request, res: Response) => {
@@ -87,13 +88,50 @@ class JobController {
     public getOne = async (req: Request, res: Response) => {
         const { job_id } = req.params;
         try {
-            const job = await Job.findById(
-                job_id,
-                'title location description seniority_level employment_type industry job_functions organization_id'
-            ).exec();
+            const job = await Job.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'oganizations',
+                        localField: 'organization_id',
+                        foreignField: '_id',
+                        as: 'organization_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$organization_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    _id: mongoose.Types.ObjectId(job_id)
+                })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
+                .limit(1)
+                .exec();
             if (job) {
                 return res.status(200).json({
-                    data: job,
+                    data: job[0],
                     success: true
                 });
             }
@@ -110,11 +148,43 @@ class JobController {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
-            const jobs = await Job.find({})
+            const jobs = await Job.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'oganizations',
+                        localField: 'organization_id',
+                        foreignField: '_id',
+                        as: 'organization_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$organization_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
                 .sort({ created_at: 'desc' })
-                .select(
-                    'title location description seniority_level employment_type industry job_functions organization_id user_id created_at updated_at'
-                )
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
