@@ -1,7 +1,6 @@
 import express from 'express';
 import passport from 'passport';
 import { postController } from '../controllers/postController';
-import uploadFile from '../utils/uploadFile';
 
 const router = express.Router();
 
@@ -13,11 +12,7 @@ router.get(
 router.get('/detail/:post_id', postController.getOne);
 router.post(
     '',
-    [
-        passport.authenticate('jwt', { session: false }),
-        uploadFile.uploadImages,
-        uploadFile.resizeImages
-    ],
+    passport.authenticate('jwt', { session: false }),
     postController.create
 );
 router.put(
@@ -38,6 +33,7 @@ router.post(
     passport.authenticate('jwt', { session: false }),
     postController.createReaction
 );
+
 // Comment
 router.get('/comment', postController.getCommentsOfPost);
 router.post(

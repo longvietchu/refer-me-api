@@ -23,7 +23,8 @@ class UserController {
     public changeInfo = async (req: Request, res: Response) => {
         const updateUser = {
             name: req.body.name,
-            avatar: req.body.image
+            avatar: req.body.avatar,
+            headline: req.body.headline
         };
 
         try {

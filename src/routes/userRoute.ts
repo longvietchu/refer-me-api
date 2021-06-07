@@ -12,11 +12,7 @@ router.get(
 router.get('/search', userController.search);
 router.put(
     '/change-info',
-    [
-        passport.authenticate('jwt', { session: false }),
-        uploadFile.upload.single('avatar'),
-        uploadFile.resizeSingle
-    ],
+    passport.authenticate('jwt', { session: false }),
     userController.changeInfo
 );
 router.put(

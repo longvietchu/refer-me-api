@@ -30,5 +30,15 @@ router.delete(
     passport.authenticate('jwt', { session: false }),
     connectionController.delete
 );
+router.get(
+    '/recommend',
+    passport.authenticate('jwt', { session: false }),
+    connectionController.getRecommend
+);
+router.get(
+    '/in-connection',
+    passport.authenticate('jwt', { session: false }),
+    connectionController.inConnection
+);
 
 export default router;

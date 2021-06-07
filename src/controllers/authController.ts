@@ -11,7 +11,7 @@ class AuthController {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { name, email, password, role, image } = req.body;
+        const { name, email, password, role, avatar } = req.body;
 
         try {
             let user = await User.findOne({ email });
@@ -28,13 +28,13 @@ class AuthController {
                 name,
                 email,
                 password: hashedPassword,
-                avatar: image,
+                avatar,
                 role
             };
 
             await User.create(newUser);
             return res.status(200).json({
-                user: { name, email, avatar: newUser.avatar, role },
+                user: { name, email, avatar, role },
                 success: true
             });
         } catch (e) {

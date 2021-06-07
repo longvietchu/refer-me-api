@@ -29,6 +29,7 @@ const UserSchema: Schema = new Schema(
             required: true
         },
         avatar: String,
+        headline: String,
         role: {
             type: Role,
             default: Role.USER

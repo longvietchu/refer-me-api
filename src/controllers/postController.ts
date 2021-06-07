@@ -113,18 +113,11 @@ class PostController {
             return handleError(res, e, 'Cannot get post.');
         }
     };
-    getImagesUrl = (images: any) => {
-        const imagesUrl = images.map((image: any) => {
-            return `${process.env.IMG_HOST}/${image}`;
-        });
-        return imagesUrl;
-    };
     create = async (req: Request, res: Response) => {
-        const { description } = req.body;
-        const images = this.getImagesUrl(req.body.images);
+        const { description, post_image } = req.body;
         const newPost = {
             description,
-            post_image: images,
+            post_image,
             user_id: req.user.id
         };
         try {
@@ -135,10 +128,11 @@ class PostController {
         }
     };
     update = async (req: Request, res: Response) => {
-        const { description } = req.body;
+        const { description, post_image } = req.body;
         const { post_id } = req.params;
         const updatePost = {
-            description
+            description,
+            post_image
         };
         try {
             const post: any = await Post.findById(post_id);
