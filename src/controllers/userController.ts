@@ -11,7 +11,8 @@ class UserController {
                     id: req.user.id,
                     name: req.user.name,
                     email: req.user.email,
-                    avatar: req.user.avatar
+                    avatar: req.user.avatar,
+                    headline: req.user.headline
                 }
             });
         } catch (e) {

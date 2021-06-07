@@ -4,12 +4,11 @@ import handleError from '../utils/handleError';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
-        const { dob, about, gender, headline, background_image } = req.body;
+        const { dob, about, gender, background_image } = req.body;
         const newProfile = {
             dob,
             about,
             gender,
-            headline,
             background_image,
             user_id: req.user.id
         };

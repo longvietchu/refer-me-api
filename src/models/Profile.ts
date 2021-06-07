@@ -5,7 +5,6 @@ const ProfileSchema: Schema = new Schema(
         dob: Date,
         background_image: String,
         about: String,
-        headline: String,
         gender: {
             type: Number,
             default: 0
