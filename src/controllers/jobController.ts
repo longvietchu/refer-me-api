@@ -29,8 +29,8 @@ class JobController {
             user_id: req.user.id
         };
         try {
-            await Job.create(newJob);
-            return res.status(200).json({ data: newJob, success: true });
+            const result = await Job.create(newJob);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create job.');
         }
@@ -62,14 +62,14 @@ class JobController {
             const job: any = await Job.findById(job_id).exec();
             if (job) {
                 if (job.user_id.equals(req.user.id)) {
-                    await Job.updateOne(
+                    const result = await Job.findOneAndUpdate(
                         { _id: job_id },
                         { $set: updateJob },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res
                         .status(200)
-                        .json({ data: updateJob, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update job',
@@ -212,8 +212,10 @@ class JobController {
             const job: any = await Job.findById(job_id).exec();
             if (job) {
                 if (job.user_id.equals(req.user.id)) {
-                    await Job.deleteOne({ _id: job_id });
-                    return res.status(200).json({ success: true });
+                    const result = await Job.deleteOne({ _id: job_id });
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete job.',
@@ -324,8 +326,8 @@ class JobController {
             job_id
         };
         try {
-            await Applicant.create(newApplicant);
-            return res.status(200).json({ data: newApplicant, success: true });
+            const result = await Applicant.create(newApplicant);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create applicants.');
         }
@@ -336,8 +338,12 @@ class JobController {
             const applicant: any = await Applicant.findOne({ job_id }).exec();
             if (applicant) {
                 if (applicant.user_id.equals(req.user.id)) {
-                    await Applicant.findByIdAndDelete(applicant.id);
-                    return res.status(200).json({ success: true });
+                    const result = await Applicant.findByIdAndDelete(
+                        applicant.id
+                    );
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete applicant.',

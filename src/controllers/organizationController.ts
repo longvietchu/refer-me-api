@@ -27,10 +27,8 @@ class OrganizationController {
         };
         try {
             // Create
-            await Organization.create(newOrganization);
-            return res
-                .status(200)
-                .json({ data: newOrganization, success: true });
+            const result = await Organization.create(newOrganization);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create organization.');
         }
@@ -64,14 +62,14 @@ class OrganizationController {
             );
             if (organization) {
                 if (organization.user_id.equals(req.user.id)) {
-                    await Organization.updateOne(
+                    const result = await Organization.findOneAndUpdate(
                         { _id: organization_id },
                         { $set: updateOrganization },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res
                         .status(200)
-                        .json({ data: updateOrganization, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update organization',
@@ -149,8 +147,12 @@ class OrganizationController {
             );
             if (organization) {
                 if (organization.user_id.equals(req.user.id)) {
-                    await Organization.deleteOne({ _id: organization_id });
-                    return res.status(200).json({ success: true });
+                    const result = await Organization.deleteOne({
+                        _id: organization_id
+                    });
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete organization.',

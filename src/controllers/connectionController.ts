@@ -14,8 +14,8 @@ class ConnectionController {
             greeting
         };
         try {
-            await Connection.create(newConnection);
-            return res.status(200).json({ data: newConnection, success: true });
+            const result = await Connection.create(newConnection);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create connection.');
         }
@@ -27,13 +27,13 @@ class ConnectionController {
             const connection: any = await Connection.findById(connection_id);
             if (connection) {
                 if (connection.receiver_id.equals(req.user.id)) {
-                    await Connection.updateOne(
+                    const result = await Connection.findOneAndUpdate(
                         { _id: connection_id },
                         { $set: { is_connected: true } },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res.status(200).json({
-                        data: { connection_id, is_connected: true },
+                        data: result,
                         success: true
                     });
                 }
@@ -134,8 +134,8 @@ class ConnectionController {
     public delete = async (req: Request, res: Response) => {
         const { connection_id } = req.params;
         try {
-            await Connection.findByIdAndDelete(connection_id);
-            return res.status(200).json({ success: true });
+            const result = await Connection.findByIdAndDelete(connection_id);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot delete connection.');
         }

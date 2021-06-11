@@ -77,8 +77,8 @@ class ExperienceController {
             organization_id
         };
         try {
-            await Experience.create(newExperience);
-            return res.status(200).json({ data: newExperience, success: true });
+            const result = await Experience.create(newExperience);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create experience.');
         }
@@ -112,7 +112,7 @@ class ExperienceController {
             console.log(updateExperience);
             if (experience) {
                 if (experience.user_id.equals(req.user.id)) {
-                    await Experience.updateOne(
+                    const result = await Experience.findOneAndUpdate(
                         { _id: experience_id },
                         { $set: updateExperience },
                         {
@@ -125,7 +125,7 @@ class ExperienceController {
                     );
                     return res
                         .status(200)
-                        .json({ data: updateExperience, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update experience',
@@ -147,8 +147,12 @@ class ExperienceController {
             const experience: any = await Experience.findById(experience_id);
             if (experience) {
                 if (experience.user_id.equals(req.user.id)) {
-                    await Experience.findByIdAndDelete(experience_id);
-                    return res.status(200).json({ success: true });
+                    const result = await Experience.findByIdAndDelete(
+                        experience_id
+                    );
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete experience.',

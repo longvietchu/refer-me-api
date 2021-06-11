@@ -59,8 +59,11 @@ class ProfileController {
         try {
             const profile = await Profile.findOne({ user_id: req.user.id });
             if (profile) {
-                await Profile.deleteOne({ user_id: req.user.id });
+                const result = await Profile.deleteOne({
+                    user_id: req.user.id
+                });
                 return res.status(200).json({
+                    data: result,
                     success: true
                 });
             }

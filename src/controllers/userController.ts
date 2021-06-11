@@ -31,13 +31,13 @@ class UserController {
         try {
             const user = await User.findOne({ _id: req.user.id });
             if (user) {
-                await User.updateOne(
+                const result = await User.findOneAndUpdate(
                     { _id: req.user.id },
                     { $set: updateUser },
-                    { omitUndefined: true }
+                    { omitUndefined: true, new: true }
                 );
                 return res.status(200).json({
-                    data: updateUser,
+                    data: result,
                     success: true
                 });
             }

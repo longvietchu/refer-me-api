@@ -121,8 +121,8 @@ class PostController {
             user_id: req.user.id
         };
         try {
-            await Post.create(newPost);
-            return res.status(200).json({ data: newPost, success: true });
+            const result = await Post.create(newPost);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create post.');
         }
@@ -138,14 +138,14 @@ class PostController {
             const post: any = await Post.findById(post_id);
             if (post) {
                 if (post.user_id.equals(req.user.id)) {
-                    await Post.updateOne(
+                    const result = await Post.findOneAndUpdate(
                         { _id: post_id },
                         { $set: updatePost },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res
                         .status(200)
-                        .json({ data: updatePost, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update post',
@@ -166,8 +166,10 @@ class PostController {
             const post: any = await Post.findById(post_id);
             if (post) {
                 if (post.user_id.equals(req.user.id)) {
-                    await Post.deleteOne({ _id: post_id });
-                    return res.status(200).json({ success: true });
+                    const result = await Post.findByIdAndDelete(post_id);
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete post.',
@@ -232,9 +234,9 @@ class PostController {
                 user_id: req.user.id
             });
             if (reaction) {
-                await Reaction.findByIdAndDelete(reaction.id);
+                const result = await Reaction.findByIdAndDelete(reaction.id);
                 return res.status(200).json({
-                    data: reaction,
+                    data: result,
                     messsage: 'Reaction deleted.',
                     success: true
                 });
@@ -243,8 +245,8 @@ class PostController {
                 post_id,
                 user_id: req.user.id
             };
-            await Reaction.create(newReaction);
-            return res.status(200).json({ data: newReaction, success: true });
+            const result = await Reaction.create(newReaction);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create reaction.');
         }
@@ -302,8 +304,8 @@ class PostController {
                 post_id,
                 user_id: req.user.id
             };
-            await Comment.create(newComment);
-            return res.status(200).json({ data: newComment, success: true });
+            const result = await Comment.create(newComment);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create comment.');
         }

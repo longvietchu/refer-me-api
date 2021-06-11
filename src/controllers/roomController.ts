@@ -51,8 +51,8 @@ class RoomController {
             receiver_id: user_id
         };
         try {
-            await Room.create(newRoom);
-            return res.status(200).json({ data: newRoom, success: true });
+            const result = await Room.create(newRoom);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create room.');
         }
@@ -67,8 +67,10 @@ class RoomController {
                     room.creator_id.equals(req.user.id) ||
                     room.receiver_id.equals(req.user.id)
                 ) {
-                    await Room.findByIdAndDelete(room_id);
-                    return res.status(200).json({ success: true });
+                    const result = await Room.findByIdAndDelete(room_id);
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete room.',
@@ -118,8 +120,8 @@ class RoomController {
                 content: content.trim(),
                 is_seen: false
             };
-            await Message.create(newMessage);
-            return res.status(200).json({ data: newMessage, success: true });
+            const result = await Message.create(newMessage);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create message.');
         }
@@ -131,14 +133,14 @@ class RoomController {
             const message: any = await Message.findById(message_id);
             if (message) {
                 if (message.to.equals(req.user.id)) {
-                    await Message.updateOne(
+                    const result = await Message.findOneAndUpdate(
                         { _id: message_id },
                         { $set: { is_seen: true } },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res
                         .status(200)
-                        .json({ data: message, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update message',

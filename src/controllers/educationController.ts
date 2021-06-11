@@ -64,8 +64,8 @@ class EducationController {
             organization_id
         };
         try {
-            await Education.create(newEducation);
-            return res.status(200).json({ data: newEducation, success: true });
+            const result = await Education.create(newEducation);
+            return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot create education.');
         }
@@ -87,14 +87,14 @@ class EducationController {
             const education: any = await Education.findById(education_id);
             if (education) {
                 if (education.user_id.equals(req.user.id)) {
-                    await Education.updateOne(
+                    const result = await Education.findOneAndUpdate(
                         { _id: education_id },
                         { $set: updateEducation },
-                        { omitUndefined: true }
+                        { omitUndefined: true, new: true }
                     );
                     return res
                         .status(200)
-                        .json({ data: updateEducation, success: true });
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to update education',
@@ -116,8 +116,12 @@ class EducationController {
             const education: any = await Education.findById(education_id);
             if (education) {
                 if (education.user_id.equals(req.user.id)) {
-                    await Education.findByIdAndDelete(education_id);
-                    return res.status(200).json({ success: true });
+                    const result = await Education.findByIdAndDelete(
+                        education_id
+                    );
+                    return res
+                        .status(200)
+                        .json({ data: result, success: true });
                 }
                 return res.status(401).json({
                     message: 'Unauthorized to delete education.',
