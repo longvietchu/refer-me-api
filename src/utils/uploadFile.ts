@@ -4,7 +4,11 @@ import sharp from 'sharp';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-const multerStorage = multer.memoryStorage();
+const multerStorage = multer.diskStorage({
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now());
+    }
+});
 
 const multerFilter = (req: Request, file: any, cb: any) => {
     if (file.mimetype.startsWith('image')) {

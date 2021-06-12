@@ -2,11 +2,11 @@
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import path from 'path';
 import http from 'http';
 import passport from 'passport';
 import passportService from './config/passport';
 import cors from 'cors';
+import { v2 as cloudinary } from 'cloudinary';
 
 if (!process.env.ENV) {
     try {
@@ -50,6 +50,13 @@ declare global {
 
 // sockets
 require('./sockets/index');
+
+// Config Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Routes
 import api from './routes/index';
