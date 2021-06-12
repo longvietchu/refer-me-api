@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Profile } from '../models/Profile';
 import handleError from '../utils/handleError';
+import mongoose from 'mongoose';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
@@ -42,10 +43,36 @@ class ProfileController {
     public getOne = async (req: Request, res: Response) => {
         const { user_id } = req.params;
         try {
-            const profile = await Profile.findOne({ user_id }).exec();
+            const profile = await Profile.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    user_id: mongoose.Types.ObjectId(user_id)
+                })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
+                .limit(1)
+                .exec();
             if (profile) {
                 return res.status(200).json({
-                    data: profile,
+                    data: profile[0],
                     success: true
                 });
             }

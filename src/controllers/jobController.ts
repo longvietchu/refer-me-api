@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Applicant } from '../models/Applicant';
 import { Job } from '../models/Job';
-import { User } from '../models/User';
 import handleError from '../utils/handleError';
 import mongoose from 'mongoose';
 
