@@ -88,10 +88,7 @@ class OrganizationController {
     public getOne = async (req: Request, res: Response) => {
         const { organization_id } = req.params;
         try {
-            const organization = await Organization.findById(
-                organization_id,
-                'name avatar background_image description website industry company_size founded'
-            );
+            const organization = await Organization.findById(organization_id);
             if (organization) {
                 return res.status(200).json({
                     data: organization,
@@ -111,13 +108,10 @@ class OrganizationController {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
-            const organizations = await Organization.find({})
+            const organizations = await Organization.find()
                 .sort({
                     created_at: 'desc'
                 })
-                .select(
-                    'name avatar background_image description website industry company_size founded created_at updated_at'
-                )
                 .limit(limit)
                 .skip(limit * page)
                 .exec();

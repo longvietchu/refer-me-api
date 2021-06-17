@@ -113,7 +113,19 @@ class ConnectionController {
                         !mongoose.Types.ObjectId(info._id).equals(userId)
                 );
             });
-            const total_record = connections.length;
+            let totalConnection = await Connection.find({
+                people: {
+                    $all: [
+                        {
+                            $elemMatch: {
+                                $eq: mongoose.Types.ObjectId(userId)
+                            }
+                        }
+                    ]
+                },
+                is_connected: true
+            });
+            const total_record = totalConnection.length;
             if (connections) {
                 res.status(200).json({
                     data: connections,
@@ -180,7 +192,11 @@ class ConnectionController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = invitations.length;
+            const totalInvitation = await Connection.find({
+                receiver_id: userId,
+                is_connected: false
+            });
+            const total_record = totalInvitation.length;
             res.status(200).json({
                 data: invitations,
                 success: true,

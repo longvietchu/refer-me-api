@@ -32,13 +32,23 @@ class AuthController {
                 role
             };
 
-            await User.create(newUser);
+            const result: any = await User.create(newUser);
+
+            const payload = {
+                id: result.id,
+                name: result.name,
+                email: result.email
+            };
+            // Generate token
+            const tokenSign = jwt.sign(payload, process.env.SECRET_OR_KEY, {
+                expiresIn: parseInt(process.env.EXPIRE_TIME)
+            });
             return res.status(200).json({
                 user: { name, email, avatar, role },
+                token: 'Bearer ' + tokenSign,
                 success: true
             });
         } catch (e) {
-            console.log(e);
             return handleError(res, e, 'Cannot register new user.');
         }
     };
@@ -75,7 +85,6 @@ class AuthController {
                 .status(400)
                 .json({ message: 'Invalid email or password', success: false });
         } catch (e) {
-            console.log(e);
             return handleError(res, e, 'Cannot login user.');
         }
     };

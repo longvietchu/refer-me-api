@@ -76,7 +76,8 @@ class PostController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = posts.length;
+            let totalPost = await Post.find({ user_id: { $in: friendIds } });
+            const total_record = totalPost.length;
             res.status(200).json({
                 data: posts,
                 success: true,

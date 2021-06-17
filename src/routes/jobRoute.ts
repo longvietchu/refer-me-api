@@ -4,6 +4,7 @@ import { jobController } from '../controllers/jobController';
 
 const router = express.Router();
 router.get('', jobController.getAll);
+router.get('/organization', jobController.getJobOfOrganization);
 router.get('/search', jobController.search);
 router.get('/detail/:job_id', jobController.getOne);
 router.post(

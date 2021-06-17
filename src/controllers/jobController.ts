@@ -164,7 +164,7 @@ class JobController {
                 },
                 {
                     $lookup: {
-                        from: 'oganizations',
+                        from: 'organizations',
                         localField: 'organization_id',
                         foreignField: '_id',
                         as: 'organization_info'
@@ -189,7 +189,7 @@ class JobController {
                 .exec();
             const total_record = await Job.countDocuments();
             if (jobs) {
-                res.status(200).json({
+                return res.status(200).json({
                     data: jobs,
                     success: true,
                     meta: {
@@ -202,6 +202,21 @@ class JobController {
             }
         } catch (e) {
             return handleError(res, e, 'Cannot get jobs.');
+        }
+    };
+
+    public getJobOfOrganization = async (req: Request, res: Response) => {
+        const organization_id = req.query.organization_id as string;
+        try {
+            const jobs = await Job.find({ organization_id }).exec();
+            if (jobs) {
+                return res.status(200).json({
+                    data: jobs,
+                    success: true
+                });
+            }
+        } catch (e) {
+            return handleError(res, e, 'Cannot get jobs of organization.');
         }
     };
 
