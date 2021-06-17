@@ -30,11 +30,13 @@ class PostController {
                 })
                 .exec();
             let friendIds = connections.map((item: any) => {
-                let friendId = item.people.filter((id: any) => id !== userId);
+                let friendId = item.people.filter(
+                    (id: any) => !mongoose.Types.ObjectId(id).equals(userId)
+                );
                 return friendId[0];
             });
-            // console.log(friendIds);
-
+            friendIds.unshift(userId);
+            console.log(friendIds);
             let posts = await Post.aggregate([
                 {
                     $lookup: {
@@ -56,12 +58,6 @@ class PostController {
                         localField: '_id',
                         foreignField: 'post_id',
                         as: 'reactions'
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$reactions',
-                        preserveNullAndEmptyArrays: true
                     }
                 }
             ])
