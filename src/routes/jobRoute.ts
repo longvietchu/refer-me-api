@@ -34,7 +34,7 @@ router.post(
     jobController.applyJob
 );
 router.delete(
-    '/un-apply/:applicant_id',
+    '/un-apply/:job_id',
     passport.authenticate('jwt', { session: false }),
     jobController.unApply
 );

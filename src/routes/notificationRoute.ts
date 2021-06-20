@@ -10,7 +10,7 @@ router.post(
     notificationController.create
 );
 router.delete(
-    '/:education_id',
+    '/:notification_id',
     passport.authenticate('jwt', { session: false }),
     notificationController.delete
 );

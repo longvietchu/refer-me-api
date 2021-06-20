@@ -11,6 +11,7 @@ import jobRoute from './jobRoute';
 import connectionRoute from './connectionRoute';
 import roomRoute from './roomRoute';
 import postRoute from './postRoute';
+import notificationRoute from './notificationRoute';
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/job', jobRoute);
 router.use('/post', postRoute);
 router.use('/connection', connectionRoute);
 router.use('/room', roomRoute);
+router.use('/notification', notificationRoute);
 
 export default router;

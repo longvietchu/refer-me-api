@@ -349,20 +349,13 @@ class JobController {
     public unApply = async (req: Request, res: Response) => {
         const { job_id } = req.params;
         try {
-            const applicant: any = await Applicant.findOne({ job_id }).exec();
+            const applicant: any = await Applicant.findOne({
+                job_id,
+                user_id: req.user.id
+            }).exec();
             if (applicant) {
-                if (applicant.user_id.equals(req.user.id)) {
-                    const result = await Applicant.findByIdAndDelete(
-                        applicant.id
-                    );
-                    return res
-                        .status(200)
-                        .json({ data: result, success: true });
-                }
-                return res.status(401).json({
-                    message: 'Unauthorized to delete applicant.',
-                    success: false
-                });
+                const result = await Applicant.findByIdAndDelete(applicant.id);
+                return res.status(200).json({ data: result, success: true });
             }
             return res.status(400).json({
                 message: 'Applicant not found.',
