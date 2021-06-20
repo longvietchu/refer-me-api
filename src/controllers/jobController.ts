@@ -104,7 +104,7 @@ class JobController {
                 },
                 {
                     $lookup: {
-                        from: 'oganizations',
+                        from: 'organizations',
                         localField: 'organization_id',
                         foreignField: '_id',
                         as: 'organization_info'
