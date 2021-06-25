@@ -365,6 +365,27 @@ class JobController {
             return handleError(res, e, 'Cannot delete applicant.');
         }
     };
+
+    public isApplied = async (req: Request, res: Response) => {
+        const { job_id } = req.params;
+        try {
+            const applicant: any = await Applicant.findOne({
+                job_id,
+                user_id: req.user.id
+            }).exec();
+            if (applicant) {
+                return res
+                    .status(200)
+                    .json({ data: applicant, is_applied: true, success: true });
+            }
+            return res.status(200).json({
+                is_applied: false,
+                success: false
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get is applied.');
+        }
+    };
 }
 
 export const jobController = new JobController();

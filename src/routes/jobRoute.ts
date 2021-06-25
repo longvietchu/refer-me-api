@@ -38,5 +38,10 @@ router.delete(
     passport.authenticate('jwt', { session: false }),
     jobController.unApply
 );
+router.get(
+    '/is-applied',
+    passport.authenticate('jwt', { session: false }),
+    jobController.isApplied
+);
 
 export default router;
