@@ -9,8 +9,20 @@ router.post(
     passport.authenticate('jwt', { session: false }),
     skillController.create
 );
-router.put('/:skill_id', skillController.update);
-router.put('/upvote/:skill_id', skillController.upvote);
-router.delete('/:skill_id', skillController.delete);
+router.put(
+    '/:skill_id',
+    passport.authenticate('jwt', { session: false }),
+    skillController.update
+);
+router.put(
+    '/upvote/:skill_id',
+    passport.authenticate('jwt', { session: false }),
+    skillController.upvote
+);
+router.delete(
+    '/:skill_id',
+    passport.authenticate('jwt', { session: false }),
+    skillController.delete
+);
 
 export default router;
