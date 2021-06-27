@@ -164,6 +164,8 @@ class OrganizationController {
 
     public search = async (req: Request, res: Response) => {
         const keyword = req.query.keyword as string;
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
         try {
             // const organizations = await Organization.find({
             //     $text: { $search: keyword.toString() }
@@ -171,12 +173,22 @@ class OrganizationController {
             const organizations = await Organization.find({
                 name: { $regex: new RegExp(keyword), $options: 'ix' }
             })
-                .limit(10)
+                .sort({ created_at: -1 })
+                .limit(limit)
+                .skip(limit * page)
                 .exec();
+            const total_record = await Organization.countDocuments();
             if (organizations) {
-                return res
-                    .status(200)
-                    .json({ data: organizations, success: true });
+                return res.status(200).json({
+                    data: organizations,
+                    success: true,
+                    meta: {
+                        page_index: page,
+                        page_size: limit,
+                        total_record,
+                        total_page: Math.ceil(total_record / limit)
+                    }
+                });
             }
             return res.status(400).json({
                 message: 'Organization not found.',

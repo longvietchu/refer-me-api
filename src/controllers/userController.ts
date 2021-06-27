@@ -109,15 +109,30 @@ class UserController {
     };
 
     public search = async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
         const keyword = req.query.keyword as string;
         try {
             const users = await User.find({
                 name: { $regex: new RegExp(keyword), $options: 'ix' }
             })
-                .limit(10)
+                .select('-role -password -created_at -updated_at')
+                .sort({ created_at: -1 })
+                .limit(limit)
+                .skip(limit * page)
                 .exec();
+            const total_record = users.length;
             if (users) {
-                return res.status(200).json({ data: users, success: true });
+                return res.status(200).json({
+                    data: users,
+                    success: true,
+                    meta: {
+                        page_index: page,
+                        page_size: limit,
+                        total_record,
+                        total_page: Math.ceil(total_record / limit)
+                    }
+                });
             }
             return res.status(404).json({
                 message: 'User not found.',
