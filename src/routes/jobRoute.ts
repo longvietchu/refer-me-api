@@ -5,6 +5,7 @@ import { jobController } from '../controllers/jobController';
 const router = express.Router();
 router.get('', jobController.getAll);
 router.get('/organization', jobController.getJobOfOrganization);
+router.get('/user', jobController.getJobOfUser);
 router.get('/search', jobController.search);
 router.get('/detail/:job_id', jobController.getOne);
 router.post(
@@ -42,6 +43,11 @@ router.get(
     '/is-applied',
     passport.authenticate('jwt', { session: false }),
     jobController.isApplied
+);
+router.get(
+    '/applied-jobs',
+    passport.authenticate('jwt', { session: false }),
+    jobController.getAppliedJobs
 );
 
 export default router;

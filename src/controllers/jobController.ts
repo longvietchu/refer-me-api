@@ -206,15 +206,52 @@ class JobController {
     };
 
     public getJobOfOrganization = async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
         const organization_id = req.query.organization_id as string;
         try {
-            const jobs = await Job.find({ organization_id }).exec();
-            if (jobs) {
-                return res.status(200).json({
-                    data: jobs,
-                    success: true
-                });
-            }
+            const jobs = await Job.find({ organization_id })
+                .sort({ created_at: -1 })
+                .limit(limit)
+                .skip(limit * page)
+                .exec();
+            const total_record = await Job.countDocuments();
+            return res.status(200).json({
+                data: jobs,
+                success: true,
+                meta: {
+                    page_index: page,
+                    page_size: limit,
+                    total_record,
+                    total_page: Math.ceil(total_record / limit)
+                }
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get jobs of organization.');
+        }
+    };
+
+    public getJobOfUser = async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const user_id = req.query.user_id as string;
+        try {
+            const jobs = await Job.find({ user_id })
+                .sort({ created_at: -1 })
+                .limit(limit)
+                .skip(limit * page)
+                .exec();
+            const total_record = await Job.countDocuments();
+            return res.status(200).json({
+                data: jobs,
+                success: true,
+                meta: {
+                    page_index: page,
+                    page_size: limit,
+                    total_record,
+                    total_page: Math.ceil(total_record / limit)
+                }
+            });
         } catch (e) {
             return handleError(res, e, 'Cannot get jobs of organization.');
         }
@@ -282,7 +319,6 @@ class JobController {
         const job_id = req.query.job_id;
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
-
         try {
             const job: any = await Job.findById(job_id).exec();
             if (job.user_id.equals(req.user.id)) {
@@ -367,7 +403,7 @@ class JobController {
     };
 
     public isApplied = async (req: Request, res: Response) => {
-        const { job_id } = req.params;
+        const job_id = req.query.job_id as string;
         try {
             const applicant: any = await Applicant.findOne({
                 job_id,
@@ -384,6 +420,49 @@ class JobController {
             });
         } catch (e) {
             return handleError(res, e, 'Cannot get is applied.');
+        }
+    };
+
+    public getAppliedJobs = async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
+        try {
+            const applicants = await Applicant.aggregate([
+                {
+                    $lookup: {
+                        from: 'jobs',
+                        localField: 'job_id',
+                        foreignField: '_id',
+                        as: 'job_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$job_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    user_id: mongoose.Types.ObjectId(req.user.id)
+                })
+                .sort({ created_at: -1 })
+                .limit(limit)
+                .skip(limit * page)
+                .exec();
+            const total_record = applicants.length;
+            return res.status(200).json({
+                data: applicants,
+                success: true,
+                meta: {
+                    page_index: page,
+                    page_size: limit,
+                    total_record,
+                    total_page: Math.ceil(total_record / limit)
+                }
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get applied jobs.');
         }
     };
 }

@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('', organizationController.getAll);
 router.get('/search', organizationController.search);
 router.get('/detail/:organization_id', organizationController.getOne);
+router.get('/my-organizations', organizationController.getOrgOfUser);
 router.post(
     '',
     passport.authenticate('jwt', { session: false }),

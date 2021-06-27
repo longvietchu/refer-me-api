@@ -192,6 +192,34 @@ class OrganizationController {
             return handleError(res, e, 'Cannot search organizations.');
         }
     };
+
+    public getOrgOfUser = async (req: Request, res: Response) => {
+        const user_id = req.query.user_id as string;
+        const page = parseInt(req.query.page as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 10;
+        try {
+            const organizations = await Organization.find({ user_id })
+                .sort({
+                    created_at: -1
+                })
+                .limit(limit)
+                .skip(limit * page)
+                .exec();
+            const total_record = await Organization.countDocuments();
+            return res.status(200).json({
+                data: organizations,
+                success: true,
+                meta: {
+                    page_index: page,
+                    page_size: limit,
+                    total_record,
+                    total_page: Math.ceil(total_record / limit)
+                }
+            });
+        } catch (e) {
+            return handleError(res, e, 'Cannot get my organizations.');
+        }
+    };
 }
 
 export const organizationController = new OrganizationController();
