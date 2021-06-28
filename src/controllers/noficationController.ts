@@ -38,10 +38,9 @@ class NotificationController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const totalNotification = await Notification.find({
+            const total_record = await Notification.countDocuments({
                 recipient_id: user_id
-            });
-            const total_record = totalNotification.length;
+            }).exec();
             return res.status(200).json({
                 data: notifications,
                 success: true,

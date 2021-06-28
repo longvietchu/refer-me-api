@@ -36,7 +36,7 @@ class PostController {
                 return friendId[0];
             });
             friendIds.unshift(userId);
-            console.log(friendIds);
+            // console.log(friendIds);
             let posts = await Post.aggregate([
                 {
                     $lookup: {
@@ -76,8 +76,9 @@ class PostController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            let totalPost = await Post.find({ user_id: { $in: friendIds } });
-            const total_record = totalPost.length;
+            let total_record = await Post.countDocuments({
+                user_id: { $in: friendIds }
+            }).exec();
             res.status(200).json({
                 data: posts,
                 success: true,

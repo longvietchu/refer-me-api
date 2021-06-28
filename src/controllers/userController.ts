@@ -121,7 +121,9 @@ class UserController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = users.length;
+            const total_record = await User.countDocuments({
+                name: { $regex: new RegExp(keyword), $options: 'ix' }
+            });
             if (users) {
                 return res.status(200).json({
                     data: users,

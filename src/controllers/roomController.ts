@@ -92,7 +92,9 @@ class RoomController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = messages.length;
+            const total_record = await Message.countDocuments({
+                room_id
+            }).exec();
             return res.status(200).json({
                 data: messages,
                 meta: {
@@ -103,7 +105,9 @@ class RoomController {
                 },
                 success: true
             });
-        } catch (e) {}
+        } catch (e) {
+            return handleError(res, e, 'Cannot get messages.');
+        }
     };
     public createMessage = async (req: Request, res: Response) => {
         const room_id = req.query.room_id as string;

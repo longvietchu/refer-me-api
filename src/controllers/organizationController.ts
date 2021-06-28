@@ -115,7 +115,7 @@ class OrganizationController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Organization.countDocuments();
+            const total_record = await Organization.countDocuments().exec();
             if (organizations) {
                 res.status(200).json({
                     data: organizations,
@@ -167,9 +167,6 @@ class OrganizationController {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
-            // const organizations = await Organization.find({
-            //     $text: { $search: keyword.toString() }
-            // }).exec();
             const organizations = await Organization.find({
                 name: { $regex: new RegExp(keyword), $options: 'ix' }
             })
@@ -177,7 +174,9 @@ class OrganizationController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Organization.countDocuments();
+            const total_record = await Organization.countDocuments({
+                name: { $regex: new RegExp(keyword), $options: 'ix' }
+            }).exec();
             if (organizations) {
                 return res.status(200).json({
                     data: organizations,
@@ -194,12 +193,6 @@ class OrganizationController {
                 message: 'Organization not found.',
                 success: false
             });
-
-            // const indexes = await Organization.listIndexes();
-            // console.log(indexes);
-
-            // const drop = await Organization.collection.dropIndexes();
-            // return res.json({ drop });
         } catch (e) {
             return handleError(res, e, 'Cannot search organizations.');
         }
@@ -217,7 +210,9 @@ class OrganizationController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Organization.countDocuments();
+            const total_record = await Organization.countDocuments({
+                user_id
+            }).exec();
             return res.status(200).json({
                 data: organizations,
                 success: true,

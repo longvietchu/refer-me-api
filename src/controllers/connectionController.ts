@@ -113,7 +113,7 @@ class ConnectionController {
                         !mongoose.Types.ObjectId(info._id).equals(userId)
                 );
             });
-            let totalConnection = await Connection.find({
+            let total_record = await Connection.countDocuments({
                 people: {
                     $all: [
                         {
@@ -124,8 +124,7 @@ class ConnectionController {
                     ]
                 },
                 is_connected: true
-            });
-            const total_record = totalConnection.length;
+            }).exec();
             if (connections) {
                 res.status(200).json({
                     data: connections,
@@ -192,11 +191,10 @@ class ConnectionController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const totalInvitation = await Connection.find({
+            const total_record = await Connection.countDocuments({
                 receiver_id: userId,
                 is_connected: false
             });
-            const total_record = totalInvitation.length;
             res.status(200).json({
                 data: invitations,
                 success: true,

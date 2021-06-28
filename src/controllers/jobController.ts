@@ -187,7 +187,7 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Job.countDocuments();
+            const total_record = await Job.countDocuments().exec();
             if (jobs) {
                 return res.status(200).json({
                     data: jobs,
@@ -215,7 +215,9 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Job.countDocuments();
+            const total_record = await Job.countDocuments({
+                organization_id
+            }).exec();
             return res.status(200).json({
                 data: jobs,
                 success: true,
@@ -241,7 +243,7 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = await Job.countDocuments();
+            const total_record = await Job.countDocuments({ user_id }).exec();
             return res.status(200).json({
                 data: jobs,
                 success: true,
@@ -294,7 +296,9 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = jobs.length;
+            const total_record = await Job.countDocuments({
+                title: { $regex: new RegExp(keyword), $options: 'ix' }
+            }).exec();
             if (jobs) {
                 return res.status(200).json({
                     data: jobs,
@@ -343,11 +347,14 @@ class JobController {
                         }
                     }
                 ])
+                    .match({ job_id })
                     .sort({ created_at: 'desc' })
                     .limit(limit)
                     .skip(limit * page)
                     .exec();
-                const total_record = applicants.length;
+                const total_record = await Applicant.countDocuments({
+                    job_id
+                }).exec();
                 return res.status(200).json({
                     data: applicants,
                     success: true,
@@ -450,7 +457,9 @@ class JobController {
                 .limit(limit)
                 .skip(limit * page)
                 .exec();
-            const total_record = applicants.length;
+            const total_record = await Applicant.countDocuments({
+                user_id: req.user.id
+            }).exec();
             return res.status(200).json({
                 data: applicants,
                 success: true,
