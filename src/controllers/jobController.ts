@@ -8,6 +8,7 @@ class JobController {
     public create = async (req: Request, res: Response) => {
         const {
             title,
+            company,
             location,
             description,
             seniority_level,
@@ -18,6 +19,7 @@ class JobController {
         } = req.body;
         const newJob = {
             title,
+            company,
             location,
             description,
             seniority_level,
@@ -39,6 +41,7 @@ class JobController {
         const { job_id } = req.params;
         const {
             title,
+            company,
             location,
             description,
             seniority_level,
@@ -49,6 +52,7 @@ class JobController {
         } = req.body;
         const updateJob = {
             title,
+            company,
             location,
             description,
             seniority_level,
@@ -289,9 +293,39 @@ class JobController {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
-            const jobs = await Job.find({
-                title: { $regex: new RegExp(keyword), $options: 'ix' }
-            })
+            const jobs = await Job.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'organizations',
+                        localField: 'organization_id',
+                        foreignField: '_id',
+                        as: 'organization_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$organization_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    title: { $regex: new RegExp(keyword), $options: 'ix' }
+                })
                 .sort({ created_at: 'desc' })
                 .limit(limit)
                 .skip(limit * page)
