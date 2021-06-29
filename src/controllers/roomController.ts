@@ -51,6 +51,18 @@ class RoomController {
             receiver_id: user_id
         };
         try {
+            const room = await Room.findOne()
+                .or([
+                    { _id: req.user.id + '.' + user_id },
+                    { _id: user_id + '.' + req.user.id }
+                ])
+                .exec();
+            if (room) {
+                return res.status(200).json({
+                    data: room,
+                    success: true
+                });
+            }
             const result = await Room.create(newRoom);
             return res.status(200).json({ data: result, success: true });
         } catch (e) {

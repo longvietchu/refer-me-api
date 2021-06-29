@@ -24,7 +24,9 @@ class ConnectionController {
     public update = async (req: Request, res: Response) => {
         const { connection_id } = req.params;
         try {
-            const connection: any = await Connection.findById(connection_id);
+            const connection: any = await Connection.findById(
+                connection_id
+            ).exec();
             if (connection) {
                 if (connection.receiver_id.equals(req.user.id)) {
                     const result = await Connection.findOneAndUpdate(
@@ -54,7 +56,7 @@ class ConnectionController {
     public getOne = async (req: Request, res: Response) => {
         const { connection_id } = req.params;
         try {
-            const connection = await Connection.findById(connection_id);
+            const connection = await Connection.findById(connection_id).exec();
             if (connection) {
                 return res.status(200).json({
                     data: connection,
@@ -145,7 +147,9 @@ class ConnectionController {
     public delete = async (req: Request, res: Response) => {
         const { connection_id } = req.params;
         try {
-            const result = await Connection.findByIdAndDelete(connection_id);
+            const result = await Connection.findByIdAndDelete(
+                connection_id
+            ).exec();
             return res.status(200).json({ data: result, success: true });
         } catch (e) {
             return handleError(res, e, 'Cannot delete connection.');
@@ -302,10 +306,12 @@ class ConnectionController {
                     in_connection: true
                 });
             }
-            const connection = await Connection.findOne().or([
-                { people: [currentUserId, queryUserId] },
-                { people: [queryUserId, currentUserId] }
-            ]);
+            const connection = await Connection.findOne()
+                .or([
+                    { people: [currentUserId, queryUserId] },
+                    { people: [queryUserId, currentUserId] }
+                ])
+                .exec();
             if (connection) {
                 return res.status(200).json({
                     connection,
