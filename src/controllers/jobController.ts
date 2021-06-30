@@ -242,7 +242,39 @@ class JobController {
         const limit = parseInt(req.query.limit as string) || 10;
         const user_id = req.query.user_id as string;
         try {
-            const jobs = await Job.find({ user_id })
+            const jobs = await Job.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user_id',
+                        foreignField: '_id',
+                        as: 'user_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$user_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'organizations',
+                        localField: 'organization_id',
+                        foreignField: '_id',
+                        as: 'organization_info'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: '$organization_info',
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ])
+                .match({
+                    user_id: mongoose.Types.ObjectId(user_id)
+                })
                 .sort({ created_at: -1 })
                 .limit(limit)
                 .skip(limit * page)
