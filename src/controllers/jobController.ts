@@ -275,6 +275,12 @@ class JobController {
                 .match({
                     user_id: mongoose.Types.ObjectId(user_id)
                 })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
                 .sort({ created_at: -1 })
                 .limit(limit)
                 .skip(limit * page)
@@ -358,6 +364,12 @@ class JobController {
                 .match({
                     title: { $regex: new RegExp(keyword), $options: 'ix' }
                 })
+                .project({
+                    'user_info.role': 0,
+                    'user_info.password': 0,
+                    'user_info.created_at': 0,
+                    'user_info.updated_at': 0
+                })
                 .sort({ created_at: 'desc' })
                 .limit(limit)
                 .skip(limit * page)
@@ -386,7 +398,7 @@ class JobController {
         }
     };
     public getAllApplicants = async (req: Request, res: Response) => {
-        const job_id = req.query.job_id;
+        const job_id = req.query.job_id as string;
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
@@ -398,22 +410,25 @@ class JobController {
                             from: 'users',
                             localField: 'user_id',
                             foreignField: '_id',
-                            as: 'user'
+                            as: 'user_info'
                         }
                     },
                     {
-                        $unwind: '$user'
+                        $unwind: {
+                            path: '$user_info',
+                            preserveNullAndEmptyArrays: true
+                        }
                     },
                     {
                         $project: {
-                            'user.role': 0,
-                            'user.password': 0,
-                            'user.created_at': 0,
-                            'user.updated_at': 0
+                            'user_info.role': 0,
+                            'user_info.password': 0,
+                            'user_info.created_at': 0,
+                            'user_info.updated_at': 0
                         }
                     }
                 ])
-                    .match({ job_id })
+                    .match({ job_id: mongoose.Types.ObjectId(job_id) })
                     .sort({ created_at: 'desc' })
                     .limit(limit)
                     .skip(limit * page)
