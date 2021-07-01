@@ -14,7 +14,7 @@ router.post(
     organizationController.create
 );
 router.put(
-    '/:organization_id',
+    '/update/:organization_id',
     passport.authenticate('jwt', { session: false }),
     organizationController.update
 );

@@ -22,7 +22,7 @@ class RoomController {
                 }
                 // console.log(partnerId);
                 let user_info = await User.findById(partnerId)
-                    .select('name avatar')
+                    .select('-role -password -created_at -updated_at')
                     .exec();
                 let findCondition = {
                     room_id: rooms[i]._id,

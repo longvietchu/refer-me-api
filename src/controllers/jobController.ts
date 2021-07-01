@@ -3,6 +3,7 @@ import { Applicant } from '../models/Applicant';
 import { Job } from '../models/Job';
 import handleError from '../utils/handleError';
 import mongoose from 'mongoose';
+import { Organization } from '../models/Organization';
 
 class JobController {
     public create = async (req: Request, res: Response) => {
@@ -515,7 +516,7 @@ class JobController {
         const page = parseInt(req.query.page as string) || 0;
         const limit = parseInt(req.query.limit as string) || 10;
         try {
-            const applicants = await Applicant.aggregate([
+            let applicants = await Applicant.aggregate([
                 {
                     $lookup: {
                         from: 'jobs',
@@ -541,6 +542,15 @@ class JobController {
             const total_record = await Applicant.countDocuments({
                 user_id: req.user.id
             }).exec();
+            // Get organization info of job
+            for (let i = 0; i < applicants.length; i++) {
+                let organization = await Organization.findById(
+                    applicants[i].job_info.organization_id
+                );
+                if (organization) {
+                    applicants[i].job_info.organization_info = organization;
+                }
+            }
             return res.status(200).json({
                 data: applicants,
                 success: true,
