@@ -17,8 +17,10 @@ const RoomSchema: Schema = new Schema(
         },
         user_info: {
             _id: String,
+            email: String,
             name: String,
-            avatar: String
+            avatar: String,
+            headline: String
         },
         lastest_message: MessageSchema
     },
