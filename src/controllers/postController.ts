@@ -35,8 +35,8 @@ class PostController {
                 );
                 return friendId[0];
             });
-            friendIds.unshift(userId);
-            // console.log(friendIds);
+            friendIds.unshift(mongoose.Types.ObjectId(userId));
+            console.log(friendIds);
             let posts = await Post.aggregate([
                 {
                     $lookup: {
