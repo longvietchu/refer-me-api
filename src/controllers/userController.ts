@@ -51,13 +51,16 @@ class UserController {
     };
 
     public changePassword = async (req: Request, res: Response) => {
-        const { oldPassword, newPassword, confirmPassword } = req.body;
+        const { currentPassword, newPassword, confirmPassword } = req.body;
 
         try {
             let user: any = await User.findById(req.user.id);
             if (!user)
                 return res.status(404).json({ message: 'User not found' });
-            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            const isMatch = await bcrypt.compare(
+                currentPassword,
+                user.password
+            );
             if (isMatch) {
                 if (newPassword === confirmPassword) {
                     const salt: string = await bcrypt.genSalt(10);
@@ -75,13 +78,13 @@ class UserController {
                         success: true
                     });
                 }
-                return res.status(200).json({
+                return res.status(400).json({
                     message: 'New password and confirm password do not match!',
                     success: false
                 });
             }
-            return res.status(200).json({
-                message: 'Old password is not correct!',
+            return res.status(400).json({
+                message: 'Current password is not correct!',
                 success: false
             });
         } catch (e) {

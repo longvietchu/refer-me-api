@@ -14,6 +14,19 @@ class ConnectionController {
             greeting
         };
         try {
+            const connection = await Connection.findOne()
+                .or([
+                    { people: [req.user.id, receiver_id] },
+                    { people: [receiver_id, req.user.id] }
+                ])
+                .exec();
+            if (connection) {
+                return res.status(400).json({
+                    connection,
+                    message: 'Connection already exist!',
+                    success: false
+                });
+            }
             const result = await Connection.create(newConnection);
             return res.status(200).json({ data: result, success: true });
         } catch (e) {
