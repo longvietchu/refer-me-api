@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Profile } from '../models/Profile';
 import handleError from '../utils/handleError';
 import mongoose from 'mongoose';
+import { User } from '../models/User';
 
 class ProfileController {
     public create = async (req: Request, res: Response) => {
@@ -20,7 +21,7 @@ class ProfileController {
             });
             if (existProfile) {
                 // Update
-                const profileUpdate = await Profile.findOneAndUpdate(
+                let profileUpdate: any = await Profile.findOneAndUpdate(
                     { user_id: req.user.id },
                     { $set: newProfile },
                     {
@@ -31,7 +32,12 @@ class ProfileController {
                         omitUndefined: true
                     }
                 );
-                return res.status(200).json(profileUpdate);
+                profileUpdate.user_info = await User.findById(req.user.id)
+                    .select('-role -password')
+                    .exec();
+                return res
+                    .status(200)
+                    .json({ data: profileUpdate, success: true });
             }
             const savedProfile = await new Profile(newProfile).save();
             return res.status(200).json({ data: savedProfile, success: true });
